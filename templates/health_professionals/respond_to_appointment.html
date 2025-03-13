@@ -1,0 +1,165 @@
+<!-- Update health_professionals/templates/health_professionals/respond_to_appointment.html -->
+<form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="action">Response:</label>
+        <div class="d-flex">
+            <button type="submit" name="action" value="approve" class="btn btn-success me-2">Approve</button>
+            <button type="submit" name="action" value="reject" class="btn btn-danger">Reject</button>
+        </div>
+    </div>
+    
+    <div class="mb-3" id="initial-message-container">
+        <label for="initial_message">Initial message to guardian (optional):</label>
+        <textarea name="initial_message" id="initial_message" class="form-control" rows="3" 
+                  placeholder="Send an initial message to start the conversation with the guardian..."></textarea>
+        <small class="form-text text-muted">This message will be sent to the guardian when you approve the appointment.</small>
+    </div>
+    
+    <div class="mb-3" id="feedback-container" style="display: none;">
+        <label for="feedback">Feedback (reason for rejection):</label>
+        <textarea name="feedback" id="feedback" class="form-control" rows="3" 
+                  placeholder="Please provide a reason for rejecting this appointment..."></textarea>
+    </div>
+</form>
+
+<script>
+    // Show/hide appropriate fields based on action
+    document.querySelectorAll('button[name="action"]').forEach(button => {
+        button.addEventListener('click', function() {
+            const action = this.value;
+            document.getElementById('feedback-container').style.display = 
+                action === 'reject' ? 'block' : 'none';
+            document.getElementById('initial-message-container').style.display = 
+                action === 'approve' ? 'block' : 'none';
+        });
+    });
+</script>
+
+<!-- Create templates/health_professionals/conversation.html -->
+{% extends 'base.html' %}
+
+{% block title %}Conversation with Guardian{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Conversation with {{ appointment.guardian.get_full_name }}</h4>
+                    <small>Regarding appointment with {{ appointment.child.user.get_full_name }} on {{ appointment.date }}</small>
+                </div>
+                <div class="card-body">
+                    <div class="chat-container" style="max-height: 400px; overflow-y: auto;">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="message-container mb-3 {% if message.sender == request.user %}text-end{% endif %}">
+                                    <div class="message d-inline-block p-3 rounded {% if message.sender == request.user %}bg-primary text-white{% else %}bg-light{% endif %}" style="max-width: 75%;">
+                                        <div class="message-header small">
+                                            <strong>{{ message.sender.get_full_name }}</strong>
+                                            <span class="text-muted">{{ message.timestamp|date:"M d, Y" }} at {{ message.timestamp|time:"H:i" }}</span>
+                                        </div>
+                                        <div class="message-content mt-2">
+                                            {{ message.content|linebreaks }}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center py-4">
+                                <p>No messages yet. Start the conversation with the guardian.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <textarea name="content" class="form-control" placeholder="Type your message here..." required></textarea>
+                            <button type="submit" class="btn btn-primary">Send</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <a href="{% url 'health_professionals:dashboard' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Auto-scroll to bottom of chat
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatContainer = document.querySelector('.chat-container');
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    });
+</script>
+{% endblock %}
+
+<!-- Create templates/guardian/conversation.html -->
+{% extends 'base.html' %}
+
+{% block title %}Conversation with Health Professional{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Conversation with {{ appointment.health_professional.user.get_full_name }}</h4>
+                    <small>Regarding appointment for {{ appointment.child.user.get_full_name }} on {{ appointment.date }}</small>
+                </div>
+                <div class="card-body">
+                    <div class="chat-container" style="max-height: 400px; overflow-y: auto;">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="message-container mb-3 {% if message.sender == request.user %}text-end{% endif %}">
+                                    <div class="message d-inline-block p-3 rounded {% if message.sender == request.user %}bg-primary text-white{% else %}bg-light{% endif %}" style="max-width: 75%;">
+                                        <div class="message-header small">
+                                            <strong>{{ message.sender.get_full_name }}</strong>
+                                            <span class="text-muted">{{ message.timestamp|date:"M d, Y" }} at {{ message.timestamp|time:"H:i" }}</span>
+                                        </div>
+                                        <div class="message-content mt-2">
+                                            {{ message.content|linebreaks }}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center py-4">
+                                <p>No messages yet.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <textarea name="content" class="form-control" placeholder="Type your message here..." required></textarea>
+                            <button type="submit" class="btn btn-primary">Send</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <a href="{% url 'guardian:appointment_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Appointments
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Auto-scroll to bottom of chat
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatContainer = document.querySelector('.chat-container');
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    });
+</script>
+{% endblock %}

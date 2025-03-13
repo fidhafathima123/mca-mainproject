@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Trainer Portal</h5>
+                </div>
+                <div class="card-body text-center p-3">
+                    {% if trainer.profile_picture %}
+                        <img src="{{ trainer.profile_picture.url }}" class="img-fluid rounded-circle mb-3" style="max-width: 120px; max-height: 120px;">
+                    {% else %}
+                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 120px; height: 120px;">
+                            <span class="text-white" style="font-size: 2.5rem;">{{ trainer.user.first_name|first }}{{ trainer.user.last_name|first }}</span>
+                        </div>
+                    {% endif %}
+                    <h5>{{ trainer.user.get_full_name }}</h5>
+                    <p class="text-muted small mb-3">{{ trainer.years_of_experience }} years experience</p>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'trainer:dashboard' %}" class="list-group-item list-group-item-action active">Dashboard</a>
+                    <a href="{% url 'trainer:manage_tasks' %}" class="list-group-item list-group-item-action">Manage Tasks</a>
+                    <a href="{% url 'trainer:manage_sessions' %}" class="list-group-item list-group-item-action">Manage Sessions</a>
+                    <a href="{% url 'trainer:trainer_edit_profile' %}" class="list-group-item list-group-item-action">Edit Profile</a>
+                    <a href="{% url 'trainer:trainer_manage_specializations' %}" class="list-group-item list-group-item-action">Specializations</a>
+                    <a href="{% url 'trainer:trainer_profile' trainer.id %}" class="list-group-item list-group-item-action">Public Profile</a>
+                    <a href="{% url 'support:view_tickets' %}" class="list-group-item list-group-item-action border-0 d-flex align-items-center">Contact Support</a>
+                    <a href="{% url 'support:view_tickets' %}" class="list-group-item list-group-item-action border-0 d-flex align-items-center">View Support Tickets</a>
+                    
+
+                    
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <!-- Welcome Banner -->
+            <div class="card mb-4 bg-primary bg-gradient text-white">
+                <div class="card-body py-3">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <h2 class="mb-1">Welcome back, {{ trainer.user.first_name }}!</h2>
+                            <p class="mb-0">{{ today|date:"l, F j, Y" }}</p>
+                        </div>
+                        <div class="ms-auto">
+                            <a href="{% url 'trainer:create_task' %}" class="btn btn-light me-2">Create Task</a>
+                            <a href="{% url 'trainer:create_session' %}" class="btn btn-light">Schedule Session</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <!-- Left column -->
+                <div class="col-lg-8">
+                    <!-- Pending Tasks Section -->
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Pending Tasks</h5>
+                            <a href="{% url 'trainer:manage_tasks' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                        </div>
+                        <div class="card-body">
+                            {% if pending_tasks %}
+                                <div class="list-group">
+                                    {% for task in pending_tasks %}
+                                        <a href="{% url 'trainer:task_detail' task.id %}" class="list-group-item list-group-item-action {% if task.status == 'assigned' %}list-group-item-primary{% elif task.status == 'submitted' %}list-group-item-warning{% endif %}">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">{{ task.title }}</h6>
+                                                <span class="badge {% if task.is_overdue %}bg-danger{% elif task.due_soon %}bg-warning{% else %}bg-info{% endif %}">
+                                                    Due: {{ task.due_date }}
+                                                </span>
+                                            </div>
+                                            <p class="mb-1 small">{{ task.description|truncatechars:80 }}</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <small>
+                                                    Child: {{ task.child.user.get_full_name }} | 
+                                                    Subject: {{ task.subject }}
+                                                </small>
+                                                <span class="badge bg-{% if task.status == 'assigned' %}primary{% elif task.status == 'submitted' %}warning{% else %}secondary{% endif %}">
+                                                    {{ task.get_status_display }}
+                                                </span>
+                                            </div>
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                                    <p>You're all caught up! No pending tasks.</p>
+                                    <a href="{% url 'trainer:create_task' %}" class="btn btn-success">Create New Task</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Upcoming Sessions Section -->
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Upcoming Sessions</h5>
+                            <a href="{% url 'trainer:manage_sessions' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                        </div>
+                        <div class="card-body">
+                            {% if upcoming_sessions %}
+                                <div class="list-group">
+                                    {% for session in upcoming_sessions %}
+                                        <div class="list-group-item">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1">{{ session.title }}</h6>
+                                                    <p class="mb-1 small">{{ session.description|truncatechars:80 }}</p>
+                                                    <small class="text-muted">
+                                                        <i class="far fa-calendar-alt"></i> {{ session.scheduled_time|date:"F j, Y" }} 
+                                                        <i class="far fa-clock ms-2"></i> {{ session.scheduled_time|date:"g:i a" }}
+                                                        <i class="far fa-user ms-2"></i> {{ session.participants.count }} participants
+                                                    </small>
+                                                </div>
+                                                <div class="col-md-4 text-md-end mt-2 mt-md-0">
+                                                    <a href="{{ session.meeting_link }}" target="_blank" class="btn btn-primary btn-sm">Start Session</a>
+                                                    <a href="{% url 'trainer:session_detail' session.id %}" class="btn btn-outline-secondary btn-sm">Details</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <i class="far fa-calendar-check fa-3x text-muted mb-3"></i>
+                                    <p>No upcoming sessions scheduled.</p>
+                                    <a href="{% url 'trainer:create_session' %}" class="btn btn-success">Schedule New Session</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right column -->
+                <div class="col-lg-4">
+                    <!-- Assigned Children Section -->
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Assigned Children</h5>
+                            <span class="badge bg-primary">{{ assigned_children.count }}</span>
+                        </div>
+                        <div class="card-body">
+                            {% if assigned_children %}
+                                <div class="list-group">
+                                    {% for child in assigned_children %}
+                                        <div class="list-group-item">
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-shrink-0">
+                                                    {% if child.profile_picture %}
+                                                        <img src="{{ child.profile_picture.url }}" alt="Profile" class="rounded-circle" width="40" height="40">
+                                                    {% else %}
+                                                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                            <span class="text-white">{{ child.user.first_name|first }}</span>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="ms-3">
+                                                    <h6 class="mb-0">{{ child.user.get_full_name }}</h6>
+                                                    <small class="text-muted">Age: {{ child.age }} • {{ child.subjects }}</small>
+                                                </div>
+                                                <div class="ms-auto">
+                                                    <a href="{% url 'trainer:view_child_profile' child.id %}" class="btn btn-outline-primary">View Profile</a>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted text-center py-3">No children assigned yet.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Specializations & Certifications Card -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Your Qualifications</h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Specializations -->
+                            <h6 class="border-bottom pb-2 mb-3">Specializations</h6>
+                            {% if specializations %}
+                                <div class="mb-3">
+                                    {% for spec in specializations %}
+                                        <span class="badge bg-light text-dark border me-2 mb-2 p-2">{{ spec.name }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted small">No specializations added yet.</p>
+                            {% endif %}
+                            <a href="{% url 'trainer:trainer_manage_specializations' %}" class="btn btn-sm btn-outline-primary mb-3">Manage Specializations</a>
+                            
+                            <!-- Certifications -->
+                            <h6 class="border-bottom pb-2 mb-3 mt-4">Certifications</h6>
+                            {% if certifications %}
+                                <ul class="list-group list-group-flush small">
+                                    {% for cert in certifications|slice:":3" %}
+                                        <li class="list-group-item px-0">
+                                            <div class="d-flex justify-content-between">
+                                                <span>{{ cert.name }}</span>
+                                                <span class="text-muted">{{ cert.issue_date|date:"Y" }}</span>
+                                            </div>
+                                            <small class="text-muted">{{ cert.issuing_organization }}</small>
+                                        </li>
+                                    {% endfor %}
+                                    {% if certifications.count > 3 %}
+                                        <li class="list-group-item px-0 text-center">
+                                            <a href="{% url 'trainer:trainer_manage_certifications' %}">View {{ certifications.count|add:"-3" }} more</a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            {% else %}
+                                <p class="text-muted small">No certifications added yet.</p>
+                            {% endif %}
+                            <a href="{% url 'trainer:trainer_manage_certifications' %}" class="btn btn-sm btn-outline-primary">Manage Certifications</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

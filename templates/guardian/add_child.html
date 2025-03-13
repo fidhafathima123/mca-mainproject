@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Child - Educational Platform{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Add Child</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <!-- Name and Username -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="id_first_name" class="form-label">First Name</label>
+                            <input type="text" name="first_name" class="form-control" id="id_first_name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="id_last_name" class="form-label">Last Name</label>
+                            <input type="text" name="last_name" class="form-control" id="id_last_name" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Username and Age -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="id_username" class="form-label">Username</label>
+                            <input type="text" name="username" class="form-control" id="id_username" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="id_age" class="form-label">Age</label>
+                            <input type="number" name="age" min="1" max="18" class="form-control" id="id_age" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Date of Birth -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="id_dob" class="form-label">Date of Birth</label>
+                            <input type="date" name="dob" class="form-control" id="id_dob" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Skills with Rating -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Skills with Rating</label>
+                            <div id="skills-container">
+                                <div class="input-group mb-2">
+                                    <input type="text" name="skills[]" class="form-control" placeholder="Skill Name">
+                                    <select name="ratings[]" class="form-control">
+                                        <option value="1">1 (Beginner)</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3 (Intermediate)</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5 (Expert)</option>
+                                    </select>
+                                    <button type="button" class="btn btn-danger" onclick="removeSkill(this)">Remove</button>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-success" onclick="addSkill()">Add Skill</button>
+                        </div>
+                    </div>
+
+                    <!-- Subjects that Need Attention -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Subjects That Need Attention</label>
+                            <textarea name="subjects" class="form-control" rows="3" placeholder="Eg: Math, Science, English"></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Medical Conditions and Allergies -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Medical Conditions & Allergies</label>
+                            <textarea name="medical_conditions" class="form-control" rows="3" placeholder="Eg: Asthma, Allergy to Nuts"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Password and Confirm Password -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="id_password" class="form-label">Password</label>
+                            <input type="password" name="password" class="form-control" id="id_password" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="id_confirm_password" class="form-label">Confirm Password</label>
+                            <input type="password" name="confirm_password" class="form-control" id="id_confirm_password" required>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'guardian:dashboard' %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Create Child Account</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script to Dynamically Add Skills -->
+<script>
+    function addSkill() {
+        const container = document.getElementById('skills-container');
+        const html = `
+            <div class="input-group mb-2">
+                <input type="text" name="skills[]" class="form-control" placeholder="Skill Name">
+                <select name="ratings[]" class="form-control">
+                    <option value="1">1 (Beginner)</option>
+                    <option value="2">2</option>
+                    <option value="3">3 (Intermediate)</option>
+                    <option value="4">4</option>
+                    <option value="5">5 (Expert)</option>
+                </select>
+                <button type="button" class="btn btn-danger" onclick="removeSkill(this)">Remove</button>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', html);
+    }
+
+    function removeSkill(button) {
+        button.parentElement.remove();
+    }
+</script>
+{% endblock %}

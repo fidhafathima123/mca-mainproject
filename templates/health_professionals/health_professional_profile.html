@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> {{ user.first_name|default:user.username }} - Professional Profile</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+ 
+    
+    {% block content %}
+    <div class="container py-5">
+        <div class="row">
+            <!-- Professional Profile Section -->
+            <div class="rounded-circle bg-success d-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 180px; height: 180px;">
+                <span class="text-white" style="font-size: 3.5rem;"> {{ user.first_name|default:user.username }}</span>
+            </div>
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <div class="row">
+                            <div class="col-md-4 text-center mb-4 mb-md-0">
+                                {% if health_professional.profile_picture %}
+                                    <img src="{{ health_professional.profile_picture.url }}" class="img-fluid rounded-circle mb-3" style="width: 180px; height: 180px; object-fit: cover;">
+                                {% else %}
+                                    <div class="rounded-circle bg-success d-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 180px; height: 180px;">
+                                        <span class="text-white" style="font-size: 3.5rem;"> {{ user.first_name|default:user.username }}</span>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if user.is_authenticated and user.id != health_professional.user.id %}
+                                    <a href="#booking-section" class="btn btn-success btn-lg w-100 mt-3">
+                                        <i class="fas fa-calendar-check me-2"></i>Book Appointment
+                                    </a>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-8">
+                                <h2 class="mb-1">{{ health_professional.user.get_full_name }}</h2>
+                                <p class="text-muted mb-3">
+                                    <span class="badge bg-success me-2">{{ health_professional.get_profession_display }}</span>
+                                    <span>{{ health_professional.years_of_experience }} years of experience</span>
+                                </p>
+                                
+                                {% if health_professional.license_number %}
+                                <p class="mb-3"><strong><i class="fas fa-certificate me-2"></i>License:</strong> {{ health_professional.license_number }}</p>
+                                {% endif %}
+                                
+                                {% if health_professional.phone_number %}
+                                <p class="mb-3"><strong><i class="fas fa-phone me-2"></i>Contact:</strong> {{ health_professional.phone_number }}</p>
+                                {% endif %}
+                                
+                                {% if health_professional.address %}
+                                <p class="mb-3"><strong><i class="fas fa-map-marker-alt me-2"></i>Location:</strong> {{ health_professional.address }}</p>
+                                {% endif %}
+                                
+                                <div class="mt-4">
+                                    <h5>About</h5>
+                                    <p>{{ health_professional.bio }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Specializations Section -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h4 class="mb-0"><i class="fas fa-star me-2 text-success"></i>Specializations</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        {% if specializations %}
+                            <div class="row">
+                                {% for specialization in specializations %}
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card h-100 border-0 shadow-sm">
+                                            <div class="card-body">
+                                                <h5 class="card-title">{{ specialization.name }}</h5>
+                                                <div class="card-text">
+                                                    <p class="mb-1"><strong>Institution:</strong> {{ specialization.board_issuing_certificate }}</p>
+                                                    <p class="mb-1"><strong>Year:</strong> {{ specialization.year_earned }}</p>
+                                                    {% if specialization.description %}
+                                                        <p class="text-muted mt-2">{{ specialization.description }}</p>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted">No specializations listed.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Certifications Section -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h4 class="mb-0"><i class="fas fa-award me-2 text-success"></i>Certifications</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        {% if certifications %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Certification</th>
+                                            <th>Issuing Organization</th>
+                                            <th>Issue Date</th>
+                                            <th>Expiry Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for certification in certifications %}
+                                            <tr>
+                                                <td>{{ certification.name }}</td>
+                                                <td>{{ certification.issuing_organization }}</td>
+                                                <td>{{ certification.issue_date }}</td>
+                                                <td>{% if certification.expiry_date %}{{ certification.expiry_date }}{% else %}N/A{% endif %}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <p class="text-muted">No certifications listed.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <!-- Booking Section -->
+            <div class="col-lg-4">
+                <div id="booking-section" class="card border-0 shadow-sm sticky-top" style="top: 20px;">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Book an Appointment</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        {% if user.is_authenticated %}
+<form method="post" action="{% url 'guardian:book_appointment' health_professional.id %}">
+    {% csrf_token %}
+    <input type="hidden" name="child_id" value="{{ child.id }}">
+    <button type="submit" class="btn btn-success">
+        Book Appointment
+    </button>
+</form>
+
+                        
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-user-lock fa-3x text-muted mb-3"></i>
+                                <h5>Login Required</h5>
+                                <p class="text-muted">You need to login to book an appointment with this professional.</p>
+                                <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-success">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Login to Continue
+                                </a>
+                            </div>
+                        {% endif %}
+            
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

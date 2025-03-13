@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>My Support Tickets</h2>
+  <a href="{% url 'support:create_ticket' %}" class="btn btn-primary mb-3">Create New Ticket</a>
+  
+  {% if tickets %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Issue Type</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ticket in tickets %}
+          <tr>
+            <td>{{ ticket.subject }}</td>
+            <td>{{ ticket.get_issue_type_display }}</td>
+            <td>
+              <span class="badge 
+                {% if ticket.status == 'new' %}badge-primary
+                {% elif ticket.status == 'in_progress' %}badge-warning
+                {% elif ticket.status == 'resolved' %}badge-success
+                {% else %}badge-secondary{% endif %}">
+                {{ ticket.get_status_display }}
+              </span>
+            </td>
+            <td>{{ ticket.created_at|date:"M d, Y" }}</td>
+            <td>
+              <a href="{% url 'support:ticket_detail' ticket.id %}" class="btn btn-sm btn-info">View</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>You haven't created any support tickets yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

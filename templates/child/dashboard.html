@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kid's Learning Dashboard</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #8e44ad;
+      --secondary: #3498db;
+      --accent: #f1c40f;
+      --success: #2ecc71;
+      --danger: #e74c3c;
+      --light: #f8f9fa;
+      --dark: #2c3e50;
+    }
+    
+    body {
+      background-color: #f0f2f5;
+      font-family: 'Comic Sans MS', 'Chalkboard SE', 'Open Sans', sans-serif;
+      background-image: url('https://cdnjs.cloudflare.com/api/placeholder/1600/900');
+      background-size: cover;
+      background-attachment: fixed;
+      background-position: center;
+    }
+    
+    .dashboard-container {
+      padding: 30px 20px;
+    }
+    
+    .welcome-banner {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 20px;
+      color: white;
+      padding: 25px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .welcome-banner::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 250px;
+      background-image: url('https://cdnjs.cloudflare.com/api/placeholder/250/200');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: right bottom;
+      opacity: 0.5;
+    }
+    
+    .card {
+      border: none;
+      border-radius: 20px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+      margin-bottom: 25px;
+      transition: all 0.3s ease;
+      overflow: hidden;
+      background-color: rgba(255, 255, 255, 0.95);
+    }
+    
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .card-header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      font-weight: bold;
+      border: none;
+      padding: 15px 20px;
+      font-size: 1.2rem;
+    }
+    
+    .card-header i {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 10px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+    
+    .list-group-item {
+      padding: 15px 20px;
+      transition: all 0.2s ease;
+      border-left: 5px solid transparent;
+    }
+    
+    .list-group-item:hover {
+      background-color: #f8f9fa;
+      border-left: 5px solid var(--primary);
+    }
+    
+    .list-group-item i {
+      color: var(--primary);
+      font-size: 1.2rem;
+      margin-right: 10px;
+    }
+    
+    .quick-link {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      border-radius: 15px;
+      background-color: white;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      margin-bottom: 15px;
+      transition: all 0.2s ease;
+    }
+    
+    .quick-link:hover {
+      transform: scale(1.03);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .quick-link .icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 15px;
+      background-color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+    }
+    
+    .quick-link .icon i {
+      font-size: 1.5rem;
+      color: white;
+    }
+    
+    .quick-link .text {
+      font-weight: bold;
+      color: var(--dark);
+    }
+    
+    .task-item {
+      background: white;
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-left: 5px solid var(--primary);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      transition: all 0.2s ease;
+    }
+    
+    .task-item:hover {
+      transform: scale(1.02);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .task-item.submitted {
+      border-left-color: var(--accent);
+    }
+    
+    .task-item.completed {
+      border-left-color: var(--success);
+    }
+    
+    .status-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 10px;
+    }
+    
+    .status-dot.assigned {
+      background-color: var(--primary);
+    }
+    
+    .status-dot.submitted {
+      background-color: var(--accent);
+    }
+    
+    .status-dot.completed {
+      background-color: var(--success);
+    }
+    
+    .session-card {
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+      height: 100%;
+    }
+    
+    .session-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .session-card .header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 15px;
+    }
+    
+    .session-card .body {
+      padding: 20px;
+    }
+    
+    .session-calendar {
+      width: 70px;
+      height: 70px;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      margin-right: 15px;
+    }
+    
+    .session-calendar .month {
+      background-color: var(--primary);
+      color: white;
+      text-align: center;
+      padding: 5px;
+      font-weight: bold;
+    }
+    
+    .session-calendar .day {
+      background-color: white;
+      color: var(--dark);
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: bold;
+      padding: 8px;
+    }
+    
+    .join-btn {
+      background: linear-gradient(135deg, var(--success), #27ae60);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 10px 20px;
+      font-weight: bold;
+      box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+      transition: all 0.2s ease;
+    }
+    
+    .join-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(46, 204, 113, 0.4);
+    }
+    
+    .badge-custom {
+      border-radius: 50px;
+      padding: 8px 15px;
+      font-weight: normal;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+    }
+    
+    .empty-state img {
+      width: 120px;
+      height: 120px;
+      margin-bottom: 20px;
+      opacity: 0.7;
+    }
+    
+    .empty-state p {
+      color: #95a5a6;
+      font-size: 1.1rem;
+    }
+    
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: #f1c40f;
+      border-radius: 50%;
+    }
+    
+    @keyframes fall {
+      0% {
+        transform: translateY(-100px) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(800px) rotate(180deg);
+        opacity: 0;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .welcome-banner::after {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-container container-fluid">
+    <!-- Welcome Banner -->
+    <div class="welcome-banner">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h1 class="display-4 fw-bold mb-2">Hey there, {{ child.user.first_name }}! 👋</h1>
+          <p class="fs-5 mb-0">Welcome to your magical learning adventure!</p>
+        </div>
+      </div>
+    </div>
+    <form action="{% url 'accounts:logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+    </form>
+    <div class="row g-4">
+      <!-- Main Content Column -->
+      <div class="col-lg-8">
+        <!-- Tasks Section -->
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <i class="fas fa-rocket"></i> Your Learning Missions
+            </div>
+            <span class="badge bg-white text-primary fs-6 rounded-pill">{{ tasks|length }}</span>
+          </div>
+          <div class="card-body p-4">
+            {% if tasks %}
+              {% for task in tasks %}
+                <div class="task-item {% if task.status == 'submitted' %}submitted{% elif task.status == 'completed' %}completed{% endif %}">
+                  <div class="d-flex align-items-center">
+                    <div class="status-dot {% if task.status == 'assigned' %}assigned{% elif task.status == 'submitted' %}submitted{% else %}completed{% endif %}" 
+                         data-bs-toggle="tooltip" title="{{ task.status|title }}"></div>
+                    <div class="flex-grow-1">
+                      <div class="d-flex w-100 justify-content-between align-items-center">
+                        <h5 class="mb-1 fw-bold">{{ task.title }}</h5>
+                        <span class="badge {% if task.due_date|date:'Y-m-d' < now|date:'Y-m-d' %}bg-danger{% else %}bg-primary{% endif %} badge-custom">
+                          <i class="far fa-calendar-alt me-1"></i>{{ task.due_date|date:"M d" }}
+                        </span>
+                      </div>
+                      <p class="mb-2">{{ task.description|truncatechars:100 }}</p>
+                      <div class="d-flex mt-2 align-items-center">
+                        <span class="badge bg-light text-primary me-2 px-3 py-2 rounded-pill">{{ task.subject }}</span>
+                        <span class="badge bg-light text-primary px-3 py-2 rounded-pill">{{ task.skill }}</span>
+                        <a href="{% url 'child:task_detail' task.id %}" class="btn btn-sm btn-outline-primary ms-auto rounded-pill">
+                          <i class="fas fa-arrow-right me-1"></i> Start Mission
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="empty-state">
+                <img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f680.svg" alt="Rocket">
+                <h4 class="mt-3 mb-2">No Missions Yet!</h4>
+                <p>Your learning adventures will appear here soon!</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+        
+        <!-- Upcoming Sessions -->
+        <div class="card">
+          <div class="card-header">
+            <i class="fas fa-video"></i> Your Upcoming Adventures
+          </div>
+          <div class="card-body p-4">
+            {% if upcoming_sessions %}
+              <div class="row g-4">
+                {% for participant in upcoming_sessions %}
+                  <div class="col-md-6">
+                    <div class="session-card h-100">
+                      <div class="header">
+                        <h5 class="fw-bold mb-0">{{ participant.session.title }}</h5>
+                      </div>
+                      <div class="body">
+                        <div class="d-flex align-items-start mb-3">
+                          <div class="session-calendar">
+                            <div class="month">{{ participant.session.date|date:"M" }}</div>
+                            <div class="day">{{ participant.session.date|date:"d" }}</div>
+                          </div>
+                          <div>
+                            <div class="mb-2">
+                              <span class="badge bg-light text-dark rounded-pill">
+                                <i class="far fa-calendar-alt me-1"></i>{{ participant.session.date|date:"l" }}
+                              </span>
+                            </div>
+                            <div class="mb-3">
+                              <span class="badge bg-light text-dark rounded-pill">
+                                <i class="far fa-clock me-1"></i>{{ participant.session.time }}
+                              </span>
+                            </div>
+                            <p class="small mb-3">{{ participant.session.description|truncatechars:80 }}</p>
+                            <a href="{% url 'child:view_session_detail' participant.session.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-info-circle me-1"></i>Details
+                            </a>
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="empty-state">
+                <img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f3a5.svg" alt="Camera">
+                <h4 class="mt-3 mb-2">No Adventures Scheduled</h4>
+                <p>Your video sessions will appear here when they're scheduled!</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      
+      <!-- Sidebar Column -->
+      <div class="col-lg-4">
+        <!-- Quick Links -->
+        <div class="card">
+          <div class="card-header">
+            <i class="fas fa-magic"></i> Magic Tools
+          </div>
+          <div class="card-body p-4">
+            
+            
+            <a href="{% url 'support:create_ticket' %}" class="quick-link text-decoration-none">
+              <div class="icon" style="background-color: #e74c3c;">
+                <i class="fas fa-headset"></i>
+              </div>
+              <div class="text">Call for Backup</div>
+            </a>
+            
+            <a href="{% url 'support:view_tickets' %}" class="quick-link text-decoration-none">
+              <div class="icon" style="background-color: #f39c12;">
+                <i class="fas fa-ticket-alt"></i>
+              </div>
+              <div class="text">Message Center</div>
+            </a>
+          </div>
+        </div>
+        
+        <!-- Task History -->
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <i class="fas fa-trophy"></i> Your Victories
+            </div>
+            <span class="badge bg-white text-success fs-6 rounded-pill">{{ completed_tasks|length }}</span>
+          </div>
+          <div class="card-body p-4">
+            {% if completed_tasks %}
+              {% for task in completed_tasks %}
+                <div class="task-item completed mb-3">
+                  <div class="d-flex w-100 justify-content-between align-items-center">
+                    <h6 class="mb-1 fw-bold">{{ task.title }}</h6>
+                    <span class="badge bg-success badge-custom">
+                      <i class="far fa-calendar-check me-1"></i>{{ task.created_at|date:"M d" }}
+                    </span>
+                  </div>
+                  <div class="d-flex mt-2">
+                    <span class="badge bg-light text-success me-2 px-2 py-1 rounded-pill">{{ task.subject }}</span>
+                    <span class="badge bg-light text-success px-2 py-1 rounded-pill">{{ task.skill }}</span>
+                    <a href="{% url 'child:task_detail' task.id %}" class="btn btn-sm btn-outline-success ms-auto rounded-pill">
+                      <i class="fas fa-eye me-1"></i> View
+                    </a>
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="empty-state">
+                <img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f3c6.svg" alt="Trophy">
+                <h4 class="mt-3 mb-2">No Victories Yet</h4>
+                <p>Complete missions to collect your victories!</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize tooltips
+      var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+      });
+      
+      // Add confetti effect
+      function createConfetti() {
+        const colors = ['#f1c40f', '#e74c3c', '#3498db', '#2ecc71', '#9b59b6'];
+        const confettiCount = 50;
+        
+        for (let i = 0; i < confettiCount; i++) {
+          const confetti = document.createElement('div');
+          confetti.classList.add('confetti');
+          confetti.style.left = Math.random() * 100 + 'vw';
+          confetti.style.animationDuration = Math.random() * 3 + 2 + 's';
+          confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+          confetti.style.width = Math.random() * 10 + 5 + 'px';
+          confetti.style.height = confetti.style.width;
+          confetti.style.opacity = Math.random() + 0.5;
+          confetti.style.animation = 'fall ' + (Math.random() * 3 + 2) + 's linear forwards';
+          document.body.appendChild(confetti);
+          
+          setTimeout(() => {
+            confetti.remove();
+          }, 5000);
+        }
+      }
+      
+      // Trigger confetti on page load
+      setTimeout(createConfetti, 500);
+    });
+  </script>
+</body>
+</html>

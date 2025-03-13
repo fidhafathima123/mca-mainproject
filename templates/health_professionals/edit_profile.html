@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Health Professional Dashboard</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                     <!-- Change this line -->
+                     <a href="{% url 'health_professionals:dashboard' %}" class="list-group-item list-group-item-action active">Dashboard</a>
+                    
+                     <!-- And all these lines too -->
+                     <a href="{% url 'health_professionals:health_professional_edit_profile' %}" class="list-group-item list-group-item-action">Edit Profile</a>
+                     <a href="{% url 'health_professionals:health_professional_manage_specializations' %}" class="list-group-item list-group-item-action">Manage Specializations</a>
+                     <a href="{% url 'health_professionals:health_professional_manage_certifications' %}" class="list-group-item list-group-item-action">Manage Certifications</a>
+                     
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Edit Your Profile</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- Profile Picture -->
+                        <div class="mb-4">
+                            <label for="{{ form.profile_picture.id_for_label }}" class="form-label">Profile Picture</label>
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    {% if health_professional.profile_picture %}
+                                        <img src="{{ health_professional.profile_picture.url }}" class="img-thumbnail" style="max-width: 150px; max-height: 150px;">
+                                    {% else %}
+                                        <div class="bg-light d-flex align-items-center justify-content-center" style="width: 150px; height: 150px;">
+                                            <span class="text-muted">No Image</span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col">
+                                    {{ form.profile_picture }}
+                                    {% if form.profile_picture.errors %}
+                                        <div class="text-danger">{{ form.profile_picture.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- License Number -->
+                        <div class="mb-3">
+                            <label for="{{ form.license_number.id_for_label }}" class="form-label">License Number</label>
+                            {{ form.license_number }}
+                            {% if form.license_number.errors %}
+                                <div class="text-danger">{{ form.license_number.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Contact Information -->
+                        <div class="mb-3">
+                            <label for="{{ form.phone_number.id_for_label }}" class="form-label">Phone Number</label>
+                            {{ form.phone_number }}
+                            {% if form.phone_number.errors %}
+                                <div class="text-danger">{{ form.phone_number.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Bio -->
+                        <div class="mb-3">
+                            <label for="{{ form.bio.id_for_label }}" class="form-label">Bio</label>
+                            {{ form.bio }}
+                            {% if form.bio.errors %}
+                                <div class="text-danger">{{ form.bio.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">Tell clients about your education, background, and approach to healthcare.</div>
+                        </div>
+                        
+                        <!-- Experience -->
+                        <div class="mb-3">
+                            <label for="{{ form.years_of_experience.id_for_label }}" class="form-label">Years of Experience</label>
+                            {{ form.years_of_experience }}
+                            {% if form.years_of_experience.errors %}
+                                <div class="text-danger">{{ form.years_of_experience.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Address -->
+                        <div class="mb-3">
+                            <label for="{{ form.address.id_for_label }}" class="form-label">Address</label>
+                            {{ form.address }}
+                            {% if form.address.errors %}
+                                <div class="text-danger">{{ form.address.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'health_professionals:dashboard' %}" class="list-group-item list-group-item-action active">Cancel</a>
+                            <button type="submit" class="btn btn-success">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add Bootstrap form classes to form elements
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('input[type="text"], input[type="number"], input[type="email"], input[type="tel"], textarea, select').forEach(function(el) {
+            el.classList.add('form-control');
+        });
+        document.querySelectorAll('input[type="file"]').forEach(function(el) {
+            el.classList.add('form-control');
+        });
+    });
+</script>
+{% endblock %}

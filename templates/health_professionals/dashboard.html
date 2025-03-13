@@ -1,0 +1,345 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row g-4">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0 fw-bold">Professional Portal</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'health_professionals:dashboard' %}" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                    </a>
+                    <a href="{% url 'health_professionals:health_professional_edit_profile' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-user-edit me-2"></i> Edit Profile
+                    </a>
+                    <a href="{% url 'health_professionals:health_professional_manage_specializations' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-stethoscope me-2"></i> Specializations
+                    </a>
+                    
+                    <a href="{% url 'health_professionals:health_professional_profile' health_professional.id %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-id-card me-2"></i> Public Profile
+                    </a>
+                    <a href="{% url 'support:view_tickets' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-life-ring me-2"></i> Support Tickets
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <!-- Profile Overview -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-0">
+                    <div class="row g-0">
+                        <div class="col-md-3 bg-light p-4 text-center d-flex flex-column align-items-center justify-content-center">
+                            {% if health_professional.profile_picture %}
+                                <img src="{{ health_professional.profile_picture.url }}" class="rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
+                            {% else %}
+                                <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center mb-3" style="width: 120px; height: 120px;">
+                                    <span class="text-white fw-bold" style="font-size: 2.5rem;">{{ health_professional.user.first_name|first }}{{ health_professional.user.last_name|first }}</span>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'health_professionals:health_professional_edit_profile' %}" class="btn btn-sm btn-outline-primary mt-2">
+                                <i class="fas fa-edit me-1"></i> Edit Profile
+                            </a>
+                        </div>
+                        <div class="col-md-9 p-4">
+                            <h3 class="fw-bold text-primary">{{ health_professional.user.get_full_name }}</h3>
+                            <p class="text-muted mb-3">
+                                <span class="badge bg-primary me-2">{{ health_professional.get_profession_display }}</span>
+                                <span class="badge bg-secondary">{{ health_professional.years_of_experience }} years experience</span>
+                            </p>
+                            <div class="mb-3">
+                                <strong class="text-dark">License:</strong>
+                                <span>{% if health_professional.license_number %}{{ health_professional.license_number }}{% else %}Not provided{% endif %}</span>
+                            </div>
+                            <p class="text-muted mb-0">{{ health_professional.bio|truncatewords:40 }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Appointments Overview -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-header bg-warning bg-opacity-75 d-flex justify-content-between align-items-center py-3">
+                            <h5 class="mb-0 text-dark fw-bold">
+                                <i class="fas fa-bell me-2"></i>Pending Appointments
+                            </h5>
+                            {% if pending_count > 0 %}
+                                <span class="badge bg-danger">{{ pending_count }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="card-body p-0">
+                            {% if pending_appointments %}
+                                <div class="list-group list-group-flush">
+                                    {% for appointment in pending_appointments|slice:":3" %}
+                                    <div class="list-group-item px-4 py-3">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="mb-1 fw-bold">{{ appointment.child.user.get_full_name|default:appointment.child.user.username }}</h6>
+                                                <p class="mb-1 small text-muted">Guardian: {{ appointment.guardian.get_full_name|default:appointment.guardian.username }}</p>
+                                                <p class="mb-0 small">
+                                                    <i class="far fa-calendar-alt me-1"></i> {{ appointment.date }}
+                                                </p>
+                                            </div>
+                                            <div class="btn-group btn-group-sm">
+                                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#approveModal{{ appointment.id }}">
+                                                    <i class="fas fa-check me-1"></i> Approve
+                                                </button>
+                                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal{{ appointment.id }}">
+                                                    <i class="fas fa-times me-1"></i> Reject
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Modals for each appointment remain the same, just hidden here for brevity -->
+                                    {% endfor %}
+                                </div>
+                                {% if pending_appointments.count > 3 %}
+                                <div class="text-center py-2">
+                                    <a href="#" class="btn btn-sm btn-link">View all {{ pending_appointments.count }} pending appointments</a>
+                                </div>
+                                {% endif %}
+                            {% else %}
+                                <p class="text-center py-4 text-muted">No pending appointments</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-header bg-primary bg-opacity-75 text-white d-flex justify-content-between align-items-center py-3">
+                            <h5 class="mb-0 fw-bold">
+                                <i class="fas fa-calendar-check me-2"></i>Upcoming Appointments
+                            </h5>
+                            {% if upcoming_count > 0 %}
+                                <span class="badge bg-light text-primary">{{ upcoming_count }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="card-body p-0">
+                            {% if upcoming_appointments %}
+                                <div class="list-group list-group-flush">
+                                    {% for appointment in upcoming_appointments|slice:":3" %}
+                                    <div class="list-group-item px-4 py-3">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="mb-1 fw-bold">{{ appointment.child.user.get_full_name|default:appointment.child.user.username }}</h6>
+                                                <p class="mb-1 small text-muted">Guardian: {{ appointment.guardian.get_full_name|default:appointment.guardian.username }}</p>
+                                                <p class="mb-0 small">
+                                                    <i class="far fa-calendar-alt me-1"></i> {{ appointment.date }}
+                                                    {% if appointment.unread_messages_count > 0 %}
+                                                    <span class="badge bg-danger ms-2">{{ appointment.unread_messages_count }} new</span>
+                                                    {% endif %}
+                                                </p>
+                                            </div>
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                    Actions
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li><a class="dropdown-item" href="{% url 'appointment_messages:conversation' appointment.id %}">
+                                                        <i class="fas fa-comments me-2"></i> Message
+                                                    </a></li>
+                                                    <li><a class="dropdown-item" href="{% url 'health_professionals:start_video_call' appointment.id %}">
+                                                        <i class="fas fa-video me-2"></i> Video Call
+                                                    </a></li>
+                                                    <li><button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#detailsModal{{ appointment.id }}">
+                                                        <i class="fas fa-info-circle me-2"></i> Details
+                                                    </button></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% if upcoming_appointments.count > 3 %}
+                                <div class="text-center py-2">
+                                    <a href="#" class="btn btn-sm btn-link">View all {{ upcoming_appointments.count }} upcoming appointments</a>
+                                </div>
+                                {% endif %}
+                            {% else %}
+                                <p class="text-center py-4 text-muted">No upcoming appointments</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Expertise Area -->
+            <div class="row g-4">
+                <!-- Specializations -->
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center py-3">
+                            <h5 class="mb-0 fw-bold">Your Specializations</h5>
+                            <a href="{% url 'health_professionals:health_professional_manage_specializations' %}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-plus me-1"></i> Manage
+                            </a>
+                        </div>
+                        <div class="card-body p-0">
+                            {% if specializations %}
+                                <div class="list-group list-group-flush">
+                                    {% for specialization in specializations %}
+                                    <div class="list-group-item px-4 py-3">
+                                        <h6 class="fw-bold mb-1">{{ specialization.name }}</h6>
+                                        <p class="mb-1 small">
+                                            <i class="fas fa-university me-1"></i> {{ specialization.board_issuing_certificate }} ({{ specialization.year_earned }})
+                                        </p>
+                                        {% if specialization.description %}
+                                        <p class="small text-muted mb-0">{{ specialization.description|truncatewords:10 }}</p>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <p class="text-muted mb-3">No specializations added yet</p>
+                                    <a href="{% url 'health_professionals:health_professional_manage_specializations' %}" class="btn btn-primary">
+                                        <i class="fas fa-plus me-1"></i> Add Specializations
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Certifications -->
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center py-3">
+                            <h5 class="mb-0 fw-bold">Your Certifications</h5>
+                            <a href="{% url 'health_professionals:health_professional_manage_certifications' %}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-plus me-1"></i> Manage
+                            </a>
+                        </div>
+                        <div class="card-body p-0">
+                            {% if certifications %}
+                                <div class="list-group list-group-flush">
+                                    {% for certification in certifications %}
+                                    <div class="list-group-item px-4 py-3">
+                                        <h6 class="fw-bold mb-1">{{ certification.name }}</h6>
+                                        <p class="mb-1 small">
+                                            <i class="fas fa-award me-1"></i> {{ certification.issuing_organization }}
+                                        </p>
+                                        <p class="small text-muted mb-0">
+                                            Issued: {{ certification.issue_date }} {% if certification.expiry_date %} · Expires: {{ certification.expiry_date }}{% endif %}
+                                        </p>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <p class="text-muted mb-3">No certifications added yet</p>
+                                    <a href="{% url 'health_professionals:health_professional_manage_certifications' %}" class="btn btn-primary">
+                                        <i class="fas fa-plus me-1"></i> Add Certifications
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Appointment Modal Templates (hidden but included for completeness) -->
+{% for appointment in pending_appointments %}
+<!-- Approve Modal -->
+<div class="modal fade" id="approveModal{{ appointment.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Approve Appointment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'health_professionals:respond_to_appointment' appointment.id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="approve">
+                    <p>Are you sure you want to approve this appointment?</p>
+                    <p><strong>Child:</strong> {{ appointment.child.user.get_full_name }}</p>
+                    <p><strong>Date:</strong> {{ appointment.date }}</p>
+                    
+                    <div class="mb-3">
+                        <label for="initial_message" class="form-label">Initial Message to Guardian (Optional)</label>
+                        <textarea class="form-control" name="initial_message" rows="3" 
+                            placeholder="Send an initial message to the guardian about the appointment..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Approve</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal fade" id="rejectModal{{ appointment.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reject Appointment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'health_professionals:respond_to_appointment' appointment.id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="reject">
+                    <p>Are you sure you want to reject this appointment?</p>
+                    <div class="mb-3">
+                        <label for="feedback" class="form-label">Feedback (optional)</label>
+                        <textarea class="form-control" name="feedback"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Reject</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% for appointment in upcoming_appointments %}
+<!-- Details Modal -->
+<div class="modal fade" id="detailsModal{{ appointment.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Appointment Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Child:</strong> {{ appointment.child.user.get_full_name|default:appointment.child.user.username }}</p>
+                <p><strong>Guardian:</strong> {{ appointment.guardian.get_full_name|default:appointment.guardian.username }}</p>
+                <p><strong>Date:</strong> {{ appointment.date }}</p>
+                <p><strong>Status:</strong> <span class="badge bg-success">Approved</span></p>
+                <p><strong>Notes:</strong> {{ appointment.notes|default:"No notes available" }}</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="{% url 'appointment_messages:conversation' appointment.id %}" class="btn btn-primary">
+                    Send Message
+                </a>
+                <a href="{% url 'health_professionals:start_video_call' appointment.id %}" class="btn btn-success">
+                    <i class="fas fa-video me-1"></i> Start Video Call
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

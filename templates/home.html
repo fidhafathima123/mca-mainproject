@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home - Educational Platform</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4e73df;
+      --secondary: #f6c23e;
+      --success: #1cc88a;
+      --info: #36b9cc;
+      --warning: #f6c23e;
+      --danger: #e74a3b;
+      --light: #f8f9fc;
+      --dark: #5a5c69;
+    }
+    
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: #f8f9fc;
+    }
+    
+    .hero-section {
+      background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+      color: white;
+      padding: 4rem 0;
+      border-radius: 0.5rem;
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+      margin-bottom: 2rem;
+    }
+    
+    .hero-title {
+      font-weight: 800;
+      font-size: 2.8rem;
+      margin-bottom: 1rem;
+    }
+    
+    .hero-subtitle {
+      font-size: 1.3rem;
+      opacity: 0.9;
+      max-width: 700px;
+      margin: 0 auto 2rem auto;
+    }
+    
+    .btn-custom-primary {
+      background-color: #fff;
+      color: var(--primary);
+      border: none;
+      font-weight: 600;
+      padding: 0.75rem 1.5rem;
+      transition: all 0.3s;
+    }
+    
+    .btn-custom-primary:hover {
+      background-color: #f0f0f0;
+      transform: translateY(-3px);
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    
+    .btn-custom-outline {
+      background-color: transparent;
+      color: #fff;
+      border: 2px solid #fff;
+      font-weight: 600;
+      padding: 0.75rem 1.5rem;
+      transition: all 0.3s;
+    }
+    
+    .btn-custom-outline:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      transform: translateY(-3px);
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    
+    .feature-card {
+      border: none;
+      border-radius: 1rem;
+      box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.08);
+      height: 100%;
+      transition: all 0.3s;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15);
+    }
+    
+    .feature-card .card-body {
+      padding: 2rem;
+    }
+    
+    .feature-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+      display: inline-block;
+      width: 70px;
+      height: 70px;
+      line-height: 70px;
+      border-radius: 50%;
+      text-align: center;
+    }
+    
+    .guardian-icon {
+      background-color: rgba(78, 115, 223, 0.1);
+      color: var(--primary);
+    }
+    
+    .children-icon {
+      background-color: rgba(28, 200, 138, 0.1);
+      color: var(--success);
+    }
+    
+    .professional-icon {
+      background-color: rgba(54, 185, 204, 0.1);
+      color: var(--info);
+    }
+    
+    .card-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    
+    .user-alert {
+      background-color: white;
+      border-left: 4px solid var(--success);
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.08);
+    }
+    
+    .user-alert a {
+      color: var(--primary);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    
+    .user-alert a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-5">
+    <div class="hero-section">
+      <div class="row">
+        <div class="col-md-10 offset-md-1 text-center">
+          <h1 class="hero-title">Growing Minds</h1>
+          <p class="hero-subtitle">A comprehensive platform empowering children's education with support from guardians, trainers, and health professionals working together.</p>
+          
+          {% if not user.is_authenticated %}
+            <div class="d-grid gap-3 d-md-flex justify-content-md-center">
+              <a href="{% url 'accounts:login' %}" class="btn btn-custom-primary btn-lg">
+                <i class="fas fa-sign-in-alt me-2"></i>Log in
+              </a>
+              <a href="{% url 'accounts:register' %}" class="btn btn-custom-outline btn-lg">
+                <i class="fas fa-user-plus me-2"></i>Register as Guardian
+              </a>
+            </div>
+          {% else %}
+            <div class="user-alert mx-auto" style="max-width: 600px;">
+              <h4><i class="fas fa-user-circle me-2"></i>Welcome back, {{ user.username }}!</h4>
+              {% if user.user_type == 'guardian' %}
+                <p>Continue guiding your child's educational journey</p>
+                <a href="{% url 'guardian:dashboard' %}" class="btn btn-primary">
+                  <i class="fas fa-columns me-2"></i>Guardian Dashboard
+                </a>
+              {% elif user.user_type == 'child' %}
+                <p>Ready to continue your learning adventure?</p>
+                <a href="{% url 'child:dashboard' %}" class="btn btn-success">
+                  <i class="fas fa-book-open me-2"></i>Learning Dashboard
+                </a>
+              {% elif user.user_type == 'trainer' %}
+                <p>Your students are waiting for guidance</p>
+                <a href="{% url 'trainer:dashboard' %}" class="btn btn-info">
+                  <i class="fas fa-chalkboard-teacher me-2"></i>Trainer Dashboard
+                </a>
+              {% elif user.user_type == 'health_professional' %}
+                <p>Access your patient profiles and resources</p>
+                <a href="{% url 'health_professionals:dashboard' %}" class="btn btn-primary">
+                  <i class="fas fa-heartbeat me-2"></i>Health Dashboard
+                </a>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    
+    <div class="row mt-5 g-4">
+      <div class="col-md-4">
+        <div class="feature-card card">
+          <div class="card-body text-center">
+            <div class="feature-icon guardian-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <h5 class="card-title">For Guardians</h5>
+            <p class="card-text">Create accounts for your children, monitor their progress, and communicate with trainers and health professionals. Stay involved every step of the way.</p>
+            <a href="#" class="btn btn-outline-primary">Learn More</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card card">
+          <div class="card-body text-center">
+            <div class="feature-icon children-icon">
+              <i class="fas fa-child"></i>
+            </div>
+            <h5 class="card-title">For Children</h5>
+            <p class="card-text">Access engaging educational content, complete fun learning activities, and track your learning journey with interactive tools and rewards.</p>
+            <a href="#" class="btn btn-outline-success">Explore Activities</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card card">
+          <div class="card-body text-center">
+            <div class="feature-icon professional-icon">
+              <i class="fas fa-user-md"></i>
+            </div>
+            <h5 class="card-title">For Professionals</h5>
+            <p class="card-text">Trainers and health professionals can provide specialized guidance, create personalized plans, and collaborate with guardians for holistic development.</p>
+            <a href="#" class="btn btn-outline-info">Join Our Team</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row mt-5">
+      <div class="col-12 text-center">
+        <h2 class="mb-4">Why Choose Growing Minds?</h2>
+        <div class="row g-4 mt-3">
+          <div class="col-md-3">
+            <div class="p-4 bg-white rounded-3 shadow-sm">
+              <i class="fas fa-shield-alt text-primary fs-2 mb-3"></i>
+              <h5>Safe Environment</h5>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="p-4 bg-white rounded-3 shadow-sm">
+              <i class="fas fa-book text-success fs-2 mb-3"></i>
+              <h5>Quality Content</h5>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="p-4 bg-white rounded-3 shadow-sm">
+              <i class="fas fa-users-cog text-info fs-2 mb-3"></i>
+              <h5>Expert Support</h5>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="p-4 bg-white rounded-3 shadow-sm">
+              <i class="fas fa-chart-line text-warning fs-2 mb-3"></i>
+              <h5>Progress Tracking</h5>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</script>
+</body>
+</html>

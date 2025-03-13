@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h4>{{ quiz.title }}</h4>
+                </div>
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">
+                        Subject: {{ quiz.subject }} | Skill: {{ quiz.skill }}
+                    </h6>
+                    <p class="card-text">{{ quiz.description }}</p>
+                    
+                    <div class="alert alert-info">
+                        <strong>Status:</strong> {{ quiz.get_status_display }}<br>
+                        <strong>Due Date:</strong> {{ quiz.due_date }}<br>
+                        <strong>Assigned to:</strong> {{ quiz.child.user.get_full_name }}
+                    </div>
+                    
+                    {% if quiz.status == 'completed' %}
+                        <div class="alert alert-success">
+                            <strong>Quiz Completed</strong><br>
+                            <strong>Score:</strong> {{ quiz.submission.score }}%
+                        </div>
+                    {% elif quiz.status == 'submitted' %}
+                        <div class="alert alert-warning">
+                            <strong>Quiz Submitted</strong><br>
+                            Waiting for evaluation.
+                        </div>
+                    {% else %}
+                        <h5 class="mt-4">Quiz Questions</h5>
+                        
+                            {% csrf_token %}
+                            {% for question in questions %}
+                                <div class="card mb-3">
+                                    <div class="card-header bg-light">
+                                        <strong>Question {{ question.order }}:</strong> {{ question.text }}
+                                    </div>
+                                    <div class="card-body">
+                                        {% for choice in question.choices.all %}
+                                            <div class="form-check">
+                                                <input type="radio" class="form-check-input" 
+                                                    name="question_{{ question.id }}" 
+                                                    value="{{ choice.id }}"
+                                                    required>
+                                                <label class="form-check-label">
+                                                    {{ choice.text }}
+                                                </label>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            <button type="submit" class="btn btn-primary mt-3">Submit Quiz</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

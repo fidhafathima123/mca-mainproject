@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <h2>Manage Assignments</h2>
+        </div>
+        <div class="col-md-6 text-end">
+          
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs" id="assignmentTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="assigned-tab" data-bs-toggle="tab" data-bs-target="#assigned" type="button" role="tab" aria-controls="assigned" aria-selected="true">Assigned</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="submitted-tab" data-bs-toggle="tab" data-bs-target="#submitted" type="button" role="tab" aria-controls="submitted" aria-selected="false">Submitted</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed" type="button" role="tab" aria-controls="completed" aria-selected="false">Completed</button>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content" id="assignmentTabContent">
+                <!-- Assigned assignments tab -->
+                <div class="tab-pane fade show active" id="assigned" role="tabpanel" aria-labelledby="assigned-tab">
+                    {% if assigned_tasks or assigned_quizzes %}
+                    <div class="list-group">
+                        {% for task in assigned_tasks %}
+                        <a href="{% url 'trainer:task_detail' task.id %}" class="list-group-item list-group-item-action list-group-item-primary">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">
+                                    <span class="badge bg-info me-2">Task</span>
+                                    {{ task.title }}
+                                </h5>
+                                <small>Due: {{ task.due_date }}</small>
+                            </div>
+                            <p class="mb-1">{{ task.description|truncatechars:100 }}</p>
+                            <small>Assigned to: {{ task.child.full_name }}</small>
+                        </a>
+                        {% endfor %}
+                        
+                        {% for quiz in assigned_quizzes %}
+                        <a href="{% url 'trainer:quiz_detail' quiz.id %}" class="list-group-item list-group-item-action list-group-item-primary">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">
+                                    <span class="badge bg-warning me-2">Quiz</span>
+                                    {{ quiz.title }}
+                                </h5>
+                                <small>Due: {{ quiz.due_date }}</small>
+                            </div>
+                            <p class="mb-1">{{ quiz.description|truncatechars:100 }}</p>
+                            <small>Assigned to: {{ quiz.child.full_name }}</small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No assigned tasks or quizzes.</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Submitted assignments tab -->
+                <div class="tab-pane fade" id="submitted" role="tabpanel" aria-labelledby="submitted-tab">
+                    {% if submitted_tasks or submitted_quizzes %}
+                    <div class="list-group">
+                        {% for task in submitted_tasks %}
+                        <a href="{% url 'trainer:task_detail' task.id %}" class="list-group-item list-group-item-action list-group-item-warning">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">
+                                    <span class="badge bg-info me-2">Task</span>
+                                    {{ task.title }}
+                                </h5>
+                                <small>Due: {{ task.due_date }}</small>
+                            </div>
+                            <p class="mb-1">{{ task.description|truncatechars:100 }}</p>
+                            <small>Submitted by: {{ task.child.full_name }}</small>
+                        </a>
+                        {% endfor %}
+                        
+                        {% for quiz in submitted_quizzes %}
+                        <a href="{% url 'trainer:quiz_detail' quiz.id %}" class="list-group-item list-group-item-action list-group-item-warning">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">
+                                    <span class="badge bg-warning me-2">Quiz</span>
+                                    {{ quiz.title }}
+                                </h5>
+                                <small>Due: {{ quiz.due_date }}</small>
+                            </div>
+                            <p class="mb-1">{{ quiz.description|truncatechars:100 }}</p>
+                            <small>Score: {{ quiz.submission.score }}% | Submitted by: {{ quiz.child.full_name }}</small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No submitted tasks or quizzes.</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Completed assignments tab -->
+                <div class="tab-pane fade" id="completed" role="tabpanel" aria-labelledby="completed-tab">
+                    {% if completed_tasks or completed_quizzes %}
+                    <div class="list-group">
+                        {% for task in completed_tasks %}
+                        <a href="{% url 'trainer:task_detail' task.id %}" class="list-group-item list-group-item-action list-group-item-success">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">
+                                    <span class="badge bg-info me-2">Task</span>
+                                    {{ task.title }}
+                                </h5>
+                                <small>Completed: {{ task.completed_at|date:"M d, Y" }}</small>
+                            </div>
+                            <p class="mb-1">{{ task.description|truncatechars:100 }}</p>
+                            <small>Completed by: {{ task.child.full_name }}</small>
+                        </a>
+                        {% endfor %}
+                        
+                        {% for quiz in completed_quizzes %}
+                        <a href="{% url 'trainer:quiz_detail' quiz.id %}" class="list-group-item list-group-item-action list-group-item-success">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">
+                                    <span class="badge bg-warning me-2">Quiz</span>
+                                    {{ quiz.title }}
+                                </h5>
+                                <small>Completed: {{ quiz.completed_at|date:"M d, Y" }}</small>
+                            </div>
+                            <p class="mb-1">{{ quiz.description|truncatechars:100 }}</p>
+                            <small>Score: {{ quiz.submission.score }}% | Completed by: {{ quiz.child.full_name }}</small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No completed tasks or quizzes.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

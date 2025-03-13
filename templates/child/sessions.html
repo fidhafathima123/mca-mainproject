@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <h4 class="text-center mb-4">🎥 Your Scheduled Video Sessions</h4>
+
+            <!-- ✅ UPCOMING SESSIONS -->
+            <h5 class="text-success mb-2">Upcoming Sessions 📅</h5>
+            {% if upcoming_sessions %}
+                {% for participant in upcoming_sessions %}
+                    <div class="card mb-3 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-video"></i> {{ participant.session.title }}
+                            </h5>
+                            <p><strong>Date:</strong> {{ participant.session.date }}</p>
+                            <p><strong>Time:</strong> {{ participant.session.time }}</p>
+                            <p><strong>Duration:</strong> {{ participant.session.duration }} minutes</p>
+                            <p><strong>Trainer:</strong> {{ participant.session.trainer.name }}</p>
+
+                            <!-- ✅ LIVE SESSION STATUS -->
+                            {% if participant.session.is_session_active %}
+                            <a href="{{ participant.session.video_link }}" 
+                            onclick="window.open(this.href, '_blank'); return false;"
+                            class="btn btn-primary btn-sm mt-2">
+                            Join Session
+                         </a>
+                         
+                            {% else %}
+                                <!-- ✅ COUNTDOWN TIMER -->
+                                <div class="alert alert-warning text-center">
+                                    <h5>Session starts in:</h5>
+                                    <h4 class="countdown-timer" 
+                                        data-date="{{ participant.session.date|date:'Y-m-d' }}" 
+                                        data-time="{{ participant.session.time }}">
+                                        00:00:00
+                                    </h4>
+                                    <p>Please come back at the scheduled time.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted text-center">No upcoming sessions scheduled.</p>
+            {% endif %}
+
+            <hr>
+
+            <!-- ✅ PAST SESSIONS -->
+            <h5 class="text-danger mt-4">Past Sessions ⏳</h5>
+            {% if past_sessions %}
+                {% for participant in past_sessions %}
+                    <div class="card mb-3 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-history"></i> {{ participant.session.title }}
+                            </h5>
+                            <p><strong>Date:</strong> {{ participant.session.date }}</p>
+                            <p><strong>Time:</strong> {{ participant.session.time }}</p>
+                            <p><strong>Duration:</strong> {{ participant.session.duration }} minutes</p>
+                            <p><strong>Trainer:</strong> {{ participant.session.trainer.name }}</p>
+                            <a href="{{ participant.session.video_link }}" target="_blank" class="btn btn-secondary">
+                                <i class="fas fa-play"></i> Watch Recording
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted text-center">No past sessions found.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<!-- ✅ JAVASCRIPT FOR COUNTDOWN TIMER -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const timers = document.querySelectorAll('.countdown-timer');
+
+        timers.forEach(timer => {
+            const date = timer.getAttribute('data-date');
+            const time = timer.getAttribute('data-time');
+            const targetDate = new Date(`${date}T${time}`);
+
+            function updateTimer() {
+                const now = new Date();
+                const difference = targetDate - now;
+
+                if (difference > 0) {
+                    const hours = String(Math.floor(difference / (1000 * 60 * 60))).padStart(2, '0');
+                    const minutes = String(Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+                    const seconds = String(Math.floor((difference % (1000 * 60)) / 1000)).padStart(2, '0');
+                    timer.innerHTML = `${hours}:${minutes}:${seconds}`;
+                } else {
+                    timer.innerHTML = 'Session is about to start!';
+                }
+            }
+
+            setInterval(updateTimer, 1000);
+        });
+    });
+</script>
+{% endblock %}

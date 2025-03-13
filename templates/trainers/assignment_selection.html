@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Create New Assignment</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Create Task</h5>
+                                    <p class="card-text">Assign work that requires file submission or written response</p>
+                                    <a href="{% url 'trainer:create_assignment' %}?type=task" class="btn btn-primary">Select</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Create Quiz</h5>
+                                    <p class="card-text">Create multiple-choice questions with automated scoring</p>
+                                    <a href="{% url 'trainer:create_assignment' %}?type=quiz" class="btn btn-primary">Select</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

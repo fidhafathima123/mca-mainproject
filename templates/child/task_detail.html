@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mission Control - Task Details</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #8e44ad;
+      --secondary: #3498db;
+      --accent: #f1c40f;
+      --success: #2ecc71;
+      --danger: #e74c3c;
+      --warning: #f39c12;
+      --light: #f8f9fa;
+      --dark: #2c3e50;
+    }
+    
+    body {
+      background-color: #f0f2f5;
+      font-family: 'Comic Sans MS', 'Chalkboard SE', 'Open Sans', sans-serif;
+      background-image: url('https://cdnjs.cloudflare.com/api/placeholder/1600/900');
+      background-size: cover;
+      background-attachment: fixed;
+      background-position: center;
+    }
+    
+    .task-container {
+      padding: 30px 20px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    .task-card {
+      border: none;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.95);
+      position: relative;
+    }
+    
+    .task-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+    }
+    
+    .task-header {
+      background-color: white;
+      padding: 25px 30px;
+      border-bottom: 2px dashed rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+    
+    .task-body {
+      padding: 25px 30px;
+    }
+    
+    .task-footer {
+      background-color: #f8f9fa;
+      padding: 20px 30px;
+      border-top: 2px dashed rgba(0, 0, 0, 0.1);
+    }
+    
+    .task-title {
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--primary);
+      margin-bottom: 10px;
+      position: relative;
+      display: inline-block;
+    }
+    
+    .task-title::after {
+      content: "";
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      border-radius: 3px;
+    }
+    
+    .task-subtitle {
+      color: var(--secondary);
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+    }
+    
+    .task-description {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: var(--dark);
+      background-color: white;
+      border-radius: 15px;
+      padding: 20px;
+      border-left: 5px solid var(--accent);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      margin-bottom: 25px;
+    }
+    
+    .task-info {
+      background: linear-gradient(135deg, #e0f7fa, #bbdefb);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 25px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      border: none;
+    }
+    
+    .task-info strong {
+      color: var(--dark);
+      font-weight: bold;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 8px 15px;
+      border-radius: 50px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .status-badge.assigned {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .status-badge.submitted {
+      background-color: var(--warning);
+      color: white;
+    }
+    
+    .status-badge.completed {
+      background-color: var(--success);
+      color: white;
+    }
+    
+    .task-submit-form {
+      background-color: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      border-left: 5px solid var(--primary);
+    }
+    
+    .form-label {
+      color: var(--primary);
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    
+    .form-control {
+      border-radius: 10px;
+      border: 2px solid #e1e5eb;
+      padding: 12px 15px;
+      transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+      border-color: var(--secondary);
+      box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+    }
+    
+    textarea.form-control {
+      min-height: 120px;
+    }
+    
+    .btn {
+      border-radius: 50px;
+      padding: 12px 25px;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border: none;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .btn-secondary {
+      background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+      border: none;
+    }
+    
+    .btn-secondary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .submission-status {
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 20px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .submission-status.reviewing {
+      background: linear-gradient(135deg, #fff8e1, #ffe0b2);
+      border-left: 5px solid var(--warning);
+    }
+    
+    .submission-status.completed {
+      background: linear-gradient(135deg, #e0f2f1, #b2dfdb);
+      border-left: 5px solid var(--success);
+    }
+    
+    .submission-status h5 {
+      color: var(--dark);
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+    
+    .submission-file-link {
+      display: inline-block;
+      background-color: white;
+      padding: 10px 20px;
+      border-radius: 50px;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    
+    .submission-file-link:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+      color: var(--secondary);
+    }
+    
+    .floating-icon {
+      position: absolute;
+      width: 70px;
+      height: 70px;
+      top: -20px;
+      right: 30px;
+      background-color: var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .floating-icon i {
+      font-size: 2rem;
+      color: white;
+    }
+    
+    @media (max-width: 768px) {
+      .task-title {
+        font-size: 1.8rem;
+      }
+      
+      .floating-icon {
+        width: 60px;
+        height: 60px;
+        top: -15px;
+        right: 20px;
+      }
+      
+      .floating-icon i {
+        font-size: 1.5rem;
+      }
+    }
+    
+    /* Animation effects */
+    @keyframes float {
+      0% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+      100% {
+        transform: translateY(0px);
+      }
+    }
+    
+    .float-effect {
+      animation: float 3s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body>
+  <div class="task-container">
+    <div class="task-card">
+      <div class="task-header">
+        <div class="floating-icon float-effect">
+          {% if task.status == 'assigned' %}
+            <i class="fas fa-rocket"></i>
+          {% elif task.status == 'submitted' %}
+            <i class="fas fa-hourglass-half"></i>
+          {% else %}
+            <i class="fas fa-trophy"></i>
+          {% endif %}
+        </div>
+        <h1 class="task-title">{{ task.title }}</h1>
+        <h6 class="task-subtitle">
+          <span class="badge bg-primary rounded-pill me-2">{{ task.subject }}</span>
+          <span class="badge bg-secondary rounded-pill">{{ task.skill }}</span>
+        </h6>
+      </div>
+      
+      <div class="task-body">
+        <div class="task-description">
+          {{ task.description }}
+        </div>
+        
+        <div class="task-info">
+          <div class="status-badge {% if task.status == 'assigned' %}assigned{% elif task.status == 'submitted' %}submitted{% else %}completed{% endif %}">
+            {% if task.status == 'assigned' %}
+              <i class="fas fa-rocket me-2"></i>Ready for Takeoff
+            {% elif task.status == 'submitted' %}
+              <i class="fas fa-hourglass-half me-2"></i>Under Review
+            {% else %}
+              <i class="fas fa-trophy me-2"></i>Mission Accomplished
+            {% endif %}
+          </div>
+          
+          <p><strong><i class="far fa-calendar-alt me-2"></i>Due Date:</strong> {{ task.due_date }}</p>
+          <p><strong><i class="fas fa-user-astronaut me-2"></i>Mission Commander:</strong> {{ task.trainer.user.get_full_name }}</p>
+        </div>
+        
+        {% if task.status == 'assigned' %}
+          <div class="task-submit-form">
+            <h5 class="mb-4"><i class="fas fa-paper-plane me-2"></i>Submit Your Mission</h5>
+            <form method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="mb-4">
+                <label for="{{ form.submission_file.id_for_label }}" class="form-label">
+                  <i class="fas fa-file-upload me-2"></i>Upload Your Work
+                </label>
+                <input type="file" class="form-control" id="{{ form.submission_file.id_for_label }}" name="{{ form.submission_file.html_name }}">
+                {% if form.submission_file.errors %}
+                  <div class="text-danger mt-2">{{ form.submission_file.errors }}</div>
+                {% endif %}
+              </div>
+              
+              <div class="mb-4">
+                <label for="{{ form.submission_type.id_for_label }}" class="form-label">
+                  <i class="fas fa-tag me-2"></i>What Type of Work Is This?
+                </label>
+                {{ form.submission_type }}
+                {% if form.submission_type.errors %}
+                  <div class="text-danger mt-2">{{ form.submission_type.errors }}</div>
+                {% endif %}
+              </div>
+              
+              <div class="mb-4">
+                <label for="{{ form.comments.id_for_label }}" class="form-label">
+                  <i class="fas fa-comment-dots me-2"></i>Tell Us About Your Work
+                </label>
+                <textarea class="form-control" id="{{ form.comments.id_for_label }}" name="{{ form.comments.html_name }}" rows="4" placeholder="Share your thoughts about this mission..."></textarea>
+                {% if form.comments.errors %}
+                  <div class="text-danger mt-2">{{ form.comments.errors }}</div>
+                {% endif %}
+              </div>
+              
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-rocket me-2"></i>Launch Submission
+              </button>
+            </form>
+          </div>
+        {% elif task.status == 'submitted' %}
+          <div class="submission-status reviewing">
+            <h5><i class="fas fa-hourglass-half me-2"></i>Your mission is being reviewed!</h5>
+            <p>You completed this mission on <strong>{{ submission.submitted_at|date:"F j, Y, g:i a" }}</strong></p>
+            
+            {% if submission.comments %}
+              <div class="mb-3">
+                <strong><i class="fas fa-comment-dots me-2"></i>Your message:</strong>
+                <p class="mt-2 ps-3 border-start border-warning">{{ submission.comments }}</p>
+              </div>
+            {% endif %}
+            
+            <p>
+              <strong><i class="fas fa-file-alt me-2"></i>Your work:</strong><br>
+              <a href="{{ submission.submission_file.url }}" target="_blank" class="submission-file-link mt-2">
+                <i class="fas fa-external-link-alt me-2"></i>View your {{ submission.get_submission_type_display }}
+              </a>
+            </p>
+          </div>
+        {% elif task.status == 'completed' %}
+          <div class="submission-status completed">
+            <h5><i class="fas fa-trophy me-2"></i>Mission Accomplished!</h5>
+            <p>Your mission has been reviewed and marked as <strong>COMPLETE</strong>. Great job!</p>
+            
+            {% if submission %}
+              {% if submission.comments %}
+                <div class="mb-3">
+                  <strong><i class="fas fa-comment-dots me-2"></i>Your message:</strong>
+                  <p class="mt-2 ps-3 border-start border-success">{{ submission.comments }}</p>
+                </div>
+              {% endif %}
+              
+              <p>
+                <strong><i class="fas fa-file-alt me-2"></i>Your work:</strong><br>
+                <a href="{{ submission.submission_file.url }}" target="_blank" class="submission-file-link mt-2">
+                  <i class="fas fa-external-link-alt me-2"></i>View your {{ submission.get_submission_type_display }}
+                </a>
+              </p>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+      
+      <div class="task-footer">
+        <a href="{% url 'child:dashboard' %}" class="btn btn-secondary">
+          <i class="fas fa-arrow-left me-2"></i>Back to Mission Control
+        </a>
+      </div>
+    </div>
+  </div>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add animation to elements when they come into view
+      const animateOnScroll = function() {
+        const elements = document.querySelectorAll('.task-description, .task-info, .task-submit-form, .submission-status');
+        
+        elements.forEach(element => {
+          const elementPosition = element.getBoundingClientRect().top;
+          const windowHeight = window.innerHeight;
+          
+          if (elementPosition < windowHeight - 100) {
+            element.style.opacity = "1";
+            element.style.transform = "translateY(0)";
+          }
+        });
+      };
+      
+      // Initial setup for animation
+      const elementsToAnimate = document.querySelectorAll('.task-description, .task-info, .task-submit-form, .submission-status');
+      elementsToAnimate.forEach(element => {
+        element.style.opacity = "0";
+        element.style.transform = "translateY(20px)";
+        element.style.transition = "all 0.5s ease";
+      });
+      
+      // Run animation on load and scroll
+      window.addEventListener('scroll', animateOnScroll);
+      animateOnScroll();
+      
+      // Form styling
+      const formSelect = document.querySelector('select');
+      if (formSelect) {
+        formSelect.classList.add('form-select');
+        formSelect.style.borderRadius = '10px';
+        formSelect.style.border = '2px solid #e1e5eb';
+        formSelect.style.padding = '12px 15px';
+        formSelect.style.transition = 'all 0.3s ease';
+      }
+    });
+  </script>
+</body>
+</html>

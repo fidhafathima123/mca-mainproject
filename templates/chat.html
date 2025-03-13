@@ -1,0 +1,56 @@
+# chat.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with {{ receiver.username }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .chat-box { max-width: 600px; margin: auto; }
+        .message { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .sent { background-color: #e0f7fa; text-align: right; }
+        .received { background-color: #f1f1f1; text-align: left; }
+        .input-box { display: flex; margin-top: 20px; }
+        .input-box textarea { flex: 1; }
+    </style>
+</head>
+<body>
+<div class="chat-box">
+    <h3>Chat with {{ receiver.username }}</h3>
+    <div id="chat-container">
+        {% for message in messages %}
+            <div class="message {% if message.sender == request.user %}sent{% else %}received{% endif %}">
+                <strong>{{ message.sender.username }}</strong><br>
+                {% if message.message %}
+                    {{ message.message }}<br>
+                {% endif %}
+                {% if message.video_link %}
+                    <a href="{{ message.video_link }}" target="_blank">Join Video Call</a><br>
+                {% endif %}
+                <small>{{ message.timestamp }}</small>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if request.user == receiver or access.is_enabled %}
+    <form method="post">
+        {% csrf_token %}
+        <div class="input-box">
+            <textarea name="message" rows="2"></textarea>
+            <button type="submit">Send</button>
+        </div>
+    </form>
+
+    {% if request.user != receiver %}
+    <h4>Send Video Call Link:</h4>
+    <form method="post">
+        {% csrf_token %}
+        <input type="url" name="video_link" placeholder="Paste your video call link here" required>
+        <button type="submit">Send Link</button>
+    </form>
+    {% endif %}
+    {% endif %}
+</div>
+</body>
+</html>

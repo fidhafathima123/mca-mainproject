@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow-sm border-0 rounded">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">🎥 Create New Video Session</h4>
+                </div>
+                <div class="card-body">
+                    {% if has_assigned_children %}
+                        <form method="post">
+                            {% csrf_token %}
+                            
+                            <!-- Title Field -->
+                            <div class="form-group mb-3">
+                                <label for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+                                <input type="text" name="{{ form.title.name }}" 
+                                       class="form-control" placeholder="Enter session title" />
+                                {% if form.title.errors %}
+                                    <div class="text-danger small">{{ form.title.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group mb-3">
+                                <label for="{{ form.participants.id_for_label }}">{{ form.participants.label }}</label>
+                                {{ form.participants }}
+                                {% if form.participants.errors %}
+                                    <div class="text-danger small">{{ form.participants.errors }}</div>
+                                {% endif %}
+                                {% if form.participants.help_text %}
+                                    <small class="text-muted">{{ form.participants.help_text }}</small>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- ✅ Video Link Field (Fixed) -->
+                            <div class="form-group mb-3">
+                                <label for="{{ form.video_link.id_for_label }}">{{ form.video_link.label }}</label>
+                                <input type="url" name="{{ form.video_link.name }}" 
+                                       class="form-control" placeholder="Paste video link (YouTube/Zoom)" />
+                                {% if form.video_link.errors %}
+                                    <div class="text-danger small">{{ form.video_link.errors }}</div>
+                                {% endif %}
+                                <small class="text-muted">Example: https://zoom.us/j/1234567890</small>
+                            </div>
+                            
+                            <!-- ✅ Date Field (Fixed) -->
+                            <div class="form-group mb-3">
+                                <label for="{{ form.date.id_for_label }}">{{ form.date.label }}</label>
+                                <input type="date" name="{{ form.date.name }}" 
+                                       class="form-control" />
+                                {% if form.date.errors %}
+                                    <div class="text-danger small">{{ form.date.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- ✅ Time Field (Fixed) -->
+                            <div class="form-group mb-3">
+                                <label for="{{ form.time.id_for_label }}">{{ form.time.label }}</label>
+                                <input type="time" name="{{ form.time.name }}" 
+                                       class="form-control" />
+                                {% if form.time.errors %}
+                                    <div class="text-danger small">{{ form.time.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- ✅ Duration Field -->
+                            <div class="form-group mb-3">
+                                <label for="{{ form.duration.id_for_label }}">{{ form.duration.label }}</label>
+                                <input type="number" name="{{ form.duration.name }}" 
+                                       class="form-control" placeholder="Duration in minutes" />
+                                {% if form.duration.errors %}
+                                    <div class="text-danger small">{{ form.duration.errors }}</div>
+                                {% endif %}
+                                <small class="text-muted">Example: 60 minutes</small>
+                            </div>
+                            
+                            <!-- ✅ Submit Button -->
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-video"></i> Schedule Video Session
+                                </button>
+                            </div>
+                        </form>
+                    {% else %}
+                        <div class="alert alert-warning text-center">
+                            <h5>No Assigned Children Found</h5>
+                            <p>You currently don't have any children assigned to you. Please contact the admin.</p>
+                            <a href="{% url 'trainer:dashboard' %}" class="btn btn-primary btn-sm">Go Back to Dashboard</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Adding Bootstrap & Font Awesome for better UI -->
+<link rel="stylesheet" 
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+{% endblock %}
