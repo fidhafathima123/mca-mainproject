@@ -1,0 +1,107 @@
+<!-- trainers/templates/trainers/create_task.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Create New Task</h4>
+                </div>
+                <div class="card-body">
+                    {% if has_assigned_children %}
+                        <form method="post">
+                            {% csrf_token %}
+                            
+                            <div class="form-group mb-3">
+                                <label for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+                                {{ form.title }}
+                                {% if form.title.errors %}
+                                    <div class="text-danger">{{ form.title.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group mb-3">
+                                <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+                                {{ form.description }}
+                                {% if form.description.errors %}
+                                    <div class="text-danger">{{ form.description.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group mb-3">
+                                <label>Assign to Children</label>
+                                <div class="children-checkbox-container p-2 border rounded">
+                                    {{ form.children }}
+                                </div>
+                                {% if form.children.errors %}
+                                    <div class="text-danger">{{ form.children.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="{{ form.subject.id_for_label }}">{{ form.subject.label }}</label>
+                                        {{ form.subject }}
+                                        {% if form.subject.errors %}
+                                            <div class="text-danger">{{ form.subject.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="{{ form.skill.id_for_label }}">{{ form.skill.label }}</label>
+                                        {{ form.skill }}
+                                        {% if form.skill.errors %}
+                                            <div class="text-danger">{{ form.skill.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group mb-3">
+                                <label for="{{ form.due_date.id_for_label }}">{{ form.due_date.label }}</label>
+                                {{ form.due_date }}
+                                {% if form.due_date.errors %}
+                                    <div class="text-danger">{{ form.due_date.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mt-4">
+                                <a href="{% url 'trainer:manage_tasks' %}" class="btn btn-secondary">Cancel</a>
+                                <button type="submit" class="btn btn-primary">Create Task</button>
+                            </div>
+                        </form>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <h5>No children assigned to you</h5>
+                            <p>You need to have children assigned to you before you can create tasks. Please contact the administrator to assign children to you.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .children-checkbox-container {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    
+    .children-checkbox-container ul {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 0;
+    }
+    
+    .children-checkbox-container li {
+        margin-bottom: 0.5rem;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Your existing headers and nav tabs -->
+<div class="card">
+    <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs" id="taskTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="assigned-tab" data-bs-toggle="tab" data-bs-target="#assigned" type="button" role="tab" aria-controls="assigned" aria-selected="true">Assigned</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="submitted-tab" data-bs-toggle="tab" data-bs-target="#submitted" type="button" role="tab" aria-controls="submitted" aria-selected="false">Submitted</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed" type="button" role="tab" aria-controls="completed" aria-selected="false">Completed</button>
+            </li>
+        </ul>
+    </div>
+    <div class="card-body">
+        <div class="tab-content" id="taskTabContent">
+            <!-- Assigned tasks tab -->
+            <div class="tab-pane fade show active" id="assigned" role="tabpanel" aria-labelledby="assigned-tab">
+                {% if assigned_tasks %}
+                <div class="list-group">
+                    {% for task in assigned_tasks %}
+                    <a href="{% url 'trainer:task_detail' task.id %}" class="list-group-item list-group-item-action list-group-item-primary">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ task.title }}</h5>
+                            <small>Due: {{ task.due_date }}</small>
+                        </div>
+                        <p class="mb-1">{{ task.description|truncatechars:100 }}</p>
+                        <small>Assigned to: {{ task.assigned_children.count }} children</small>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No assigned tasks.</p>
+                {% endif %}
+            </div>
+            
+            <!-- Submitted tasks tab -->
+            <div class="tab-pane fade" id="submitted" role="tabpanel" aria-labelledby="submitted-tab">
+                {% if submitted_tasks %}
+                <div class="list-group">
+                    {% for task in submitted_tasks %}
+                    <a href="{% url 'trainer:task_detail' task.id %}" class="list-group-item list-group-item-action list-group-item-warning">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ task.title }}</h5>
+                            <small>Due: {{ task.due_date }}</small>
+                        </div>
+                        <p class="mb-1">{{ task.description|truncatechars:100 }}</p>
+                        <small>Submissions: {{ task.submissions.count }}</small>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No submitted tasks.</p>
+                {% endif %}
+            </div>
+            
+            <!-- Completed tasks tab -->
+            <div class="tab-pane fade" id="completed" role="tabpanel" aria-labelledby="completed-tab">
+                {% if completed_tasks %}
+                <div class="list-group">
+                    {% for task in completed_tasks %}
+                    <a href="{% url 'trainer:task_detail' task.id %}" class="list-group-item list-group-item-action list-group-item-success">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ task.title }}</h5>
+                            <small>Due: {{ task.due_date }}</small>
+                        </div>
+                        <p class="mb-1">{{ task.description|truncatechars:100 }}</p>
+                        <small>Completed on: {{ task.completed_at }}</small>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No completed tasks.</p>
+                {% endif %}
+            </div>
+        </div>
+        
+    </div>
+</div>
+{% endblock %}

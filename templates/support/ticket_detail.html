@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Support Ticket: {{ ticket.subject }}</h2>
+  
+  <div class="card mb-4">
+    <div class="card-header d-flex justify-content-between">
+      <span>Created: {{ ticket.created_at|date:"M d, Y H:i" }}</span>
+      <span class="badge 
+        {% if ticket.status == 'new' %}badge-primary
+        {% elif ticket.status == 'in_progress' %}badge-warning
+        {% elif ticket.status == 'resolved' %}badge-success
+        {% else %}badge-secondary{% endif %}">
+        {{ ticket.get_status_display }}
+      </span>
+    </div>
+    <div class="card-body">
+      <h5 class="card-title">Issue: {{ ticket.get_issue_type_display }}</h5>
+      <p class="card-text">{{ ticket.message|linebreaks }}</p>
+    </div>
+    <div class="card-footer text-muted">
+      Last updated: {{ ticket.updated_at|date:"M d, Y H:i" }}
+    </div>
+  </div>
+  
+  <a href="{% url 'support:view_tickets' %}" class="btn btn-secondary">Back to All Tickets</a>
+</div>
+{% endblock %}

@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ trainer.user.get_full_name }} - Trainer Profile{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <!-- Trainer Profile Header -->
+        <div class="col-md-12 mb-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 text-center">
+                            {% if trainer.profile_picture %}
+                                <img src="{{ trainer.profile_picture.url }}" alt="{{ trainer.user.get_full_name }}" class="img-fluid rounded-circle mb-3" style="width: 180px; height: 180px; object-fit: cover;">
+                            {% else %}
+                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 180px; height: 180px;">
+                                    <span class="text-white display-4">{{ trainer.user.first_name|first }}{{ trainer.user.last_name|first }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-9">
+                            <h1 class="mb-2">{{ trainer.user.get_full_name }}</h1>
+                            <div class="d-flex flex-wrap mb-3">
+                                {% for specialization in specializations %}
+                                    <span class="badge bg-primary me-2 mb-2 p-2">{{ specialization.name }}</span>
+                                {% endfor %}
+                            </div>
+                            <p><i class="bi bi-award-fill me-2"></i> <strong>{{ trainer.years_of_experience }} years of experience</strong></p>
+                            {% if trainer.phone_number %}
+                                <p><i class="bi bi-telephone-fill me-2"></i> {{ trainer.phone_number }}</p>
+                            {% endif %}
+                            <p><i class="bi bi-envelope-fill me-2"></i> {{ trainer.user.email }}</p>
+                            {% if trainer.address %}
+                                <p><i class="bi bi-geo-alt-fill me-2"></i> {{ trainer.address }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- About Me Section -->
+        <div class="col-md-8 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-white">
+                    <h3 class="mb-0">About Me</h3>
+                </div>
+                <div class="card-body">
+                    {% if trainer.bio %}
+                        <p>{{ trainer.bio|linebreaks }}</p>
+                    {% else %}
+                        <p class="text-muted">No bio available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Training Specializations -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-white">
+                    <h3 class="mb-0">Specializations</h3>
+                </div>
+                <div class="card-body">
+                    {% if specializations %}
+                        <ul class="list-group list-group-flush">
+                            {% for specialization in specializations %}
+                                <li class="list-group-item px-0">
+                                    <h5>{{ specialization.name }}</h5>
+                                    {% if specialization.description %}
+                                        <p class="mb-0 text-muted">{{ specialization.description }}</p>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">No specializations listed.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Certifications -->
+        <div class="col-md-12 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <h3 class="mb-0">Certifications & Credentials</h3>
+                </div>
+                <div class="card-body">
+                    {% if certifications %}
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                            {% for certification in certifications %}
+                                <div class="col">
+                                    <div class="card h-100 border-0 shadow-sm">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ certification.name }}</h5>
+                                            <h6 class="card-subtitle mb-2 text-muted">{{ certification.issuing_organization }}</h6>
+                                            <p class="card-text">
+                                                <small class="text-muted">
+                                                    Issued: {{ certification.issue_date|date:"M Y" }}
+                                                    {% if certification.expiry_date %}
+                                                        <br>Expires: {{ certification.expiry_date|date:"M Y" }}
+                                                    {% endif %}
+                                                </small>
+                                            </p>
+                                            {% if certification.certificate_file %}
+                                                <a href="{{ certification.certificate_file.url }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                                    <i class="bi bi-file-earmark-pdf me-1"></i> View Certificate
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No certifications listed.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contact Card -->
+        <div class="col-md-12">
+            <div class="card shadow text-center">
+                <div class="card-body py-4">
+                    <h4 class="mb-3">Interested in training with {{ trainer.user.first_name }}?</h4>
+                    <p class="mb-4">Reach out via email or phone to schedule your first session!</p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="mailto:{{ trainer.user.email }}" class="btn btn-primary">
+                            <i class="bi bi-envelope me-1"></i> Send Email
+                        </a>
+                        {% if trainer.phone_number %}
+                            <a href="tel:{{ trainer.phone_number }}" class="btn btn-outline-primary">
+                                <i class="bi bi-telephone me-1"></i> Call
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+<!-- messages/templates/messages/conversation.html -->
+{% extends 'base.html' %}
+
+{% block title %}Conversation - {{ appointment.child.user.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        Conversation about appointment for {{ appointment.child.user.get_full_name }} on {{ appointment.date }}
+                    </h5>
+                    <a href="{% if is_guardian %}{% url 'guardian:appointment_list' %}{% else %}{% url 'health_professionals:dashboard' %}{% endif %}" class="btn btn-sm btn-light">
+                        Back
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="conversation-container" style="max-height: 400px; overflow-y: auto;">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="message-bubble mb-3 {% if message.sender == request.user %}text-end{% endif %}">
+                                    <div class="d-inline-block p-3 rounded {% if message.sender == request.user %}bg-primary text-white{% else %}bg-light{% endif %}" style="max-width: 75%;">
+                                        <div class="message-content">{{ message.content }}</div>
+                                       
+    <div class="message">
+        <p><strong>{{ message.timestamp }}</strong></p>
+        <p>{{ message.content|safe }}</p>
+    </div>
+
+
+                                        <div class="message-meta text-{% if message.sender == request.user %}light{% else %}muted{% endif %} small mt-1">
+                                            {{ message.created_at|date:'M d, Y h:i A' }} - {{ message.sender.first_name|default:message.sender.username }}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center text-muted py-5">
+                                <p>No messages yet. Start the conversation!</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <form method="post" action="{% url 'appointment_messages:send_message' appointment.id %}" class="mt-4">
+
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <textarea name="content" class="form-control" rows="3" placeholder="Type your message here..." required></textarea>
+                        </div>
+                        <div class="text-end mt-2">
+                            <button type="submit" class="btn btn-primary">Send Message</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

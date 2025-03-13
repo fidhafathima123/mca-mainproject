@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit {{ child.user.first_name }}'s Profile{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-warning text-white">
+                <h4>Edit {{ child.user.first_name }}'s Profile</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <!-- User Information -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="id_first_name" class="form-label">First Name</label>
+                            {{ user_form.first_name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="id_last_name" class="form-label">Last Name</label>
+                            {{ user_form.last_name }}
+                        </div>
+                    </div>
+                    
+                    <!-- Date of Birth -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="id_dob" class="form-label">Date of Birth</label>
+                            <input type="date" name="dob" class="form-control" value="{{ child.dob|date:'Y-m-d' }}">
+                        </div>
+                    </div>
+
+                    <!-- Subjects That Need Attention -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Subjects That Need Attention</label>
+                            <textarea name="subjects" class="form-control" rows="3">{{ child.subjects }}</textarea>
+                            <small class="text-muted">Example: Math, Science, Language</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Medical Conditions -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Medical Conditions / Allergies</label>
+                            <textarea name="medical_conditions" class="form-control" rows="3">{{ child.medical_conditions }}</textarea>
+                            <small class="text-muted">Example: Asthma, Food Allergy, Dust Allergy</small>
+                        </div>
+                    </div>
+
+                    <!-- Skills with Rating -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Skills with Rating</label>
+                            <div id="skills-container">
+                                {% for skill in skills %}
+                                <div class="input-group mb-2">
+                                    <input type="hidden" name="skill_ids[]" value="{{ skill.id }}">
+                                    <input type="text" name="skills[]" class="form-control" value="{{ skill.skill_name }}" placeholder="Skill Name">
+                                    <select name="ratings[]" class="form-control">
+                                        <option value="1" {% if skill.rating == 1 %}selected{% endif %}>1</option>
+                                        <option value="2" {% if skill.rating == 2 %}selected{% endif %}>2</option>
+                                        <option value="3" {% if skill.rating == 3 %}selected{% endif %}>3</option>
+                                        <option value="4" {% if skill.rating == 4 %}selected{% endif %}>4</option>
+                                        <option value="5" {% if skill.rating == 5 %}selected{% endif %}>5</option>
+                                    </select>
+                                    <button type="button" class="btn btn-danger" onclick="removeSkill(this)">Remove</button>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <button type="button" class="btn btn-success" onclick="addSkill()">Add Skill</button>
+                        </div>
+                    </div>
+
+                    <!-- Save Button -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'guardian:dashboard' %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function addSkill() {
+        const container = document.getElementById('skills-container');
+        const html = `
+            <div class="input-group mb-2">
+                <input type="hidden" name="skill_ids[]" value="new">
+                <input type="text" name="skills[]" class="form-control" placeholder="Skill Name">
+                <select name="ratings[]" class="form-control">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+                <button type="button" class="btn btn-danger" onclick="removeSkill(this)">Remove</button>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', html);
+    }
+
+    function removeSkill(button) {
+        button.parentElement.remove();
+    }
+</script>
+{% endblock %}

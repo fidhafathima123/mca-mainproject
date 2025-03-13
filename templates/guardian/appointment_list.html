@@ -1,0 +1,109 @@
+<!-- templates/guardian/appointment_list.html -->
+{% extends 'base.html' %}
+
+{% block title %}My Appointments - Educational Platform{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1>My Appointments</h1>
+        <p class="lead">View and manage your scheduled appointments</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{% url 'guardian:dashboard' %}" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Scheduled Appointments</h5>
+    </div>
+    <div class="card-body">
+        {% if appointments %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Child</th>
+                            <th>Professional</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appointment in appointments %}
+                        <tr>
+                            <td>{{ appointment.child.user.get_full_name|default:appointment.child.user.username }}</td>
+                            <td>{{ appointment.health_professional.user.get_full_name }}</td>
+                            <td>{{ appointment.date }}</td>
+                            <td>
+                                {% if appointment.status == 'pending' %}
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                {% elif appointment.status == 'approved' %}
+                                    <span class="badge bg-success">Approved</span>
+                                {% elif appointment.status == 'rejected' %}
+                                    <span class="badge bg-danger">Rejected</span>
+                                    {% if appointment.feedback %}
+                                        <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" title="{{ appointment.feedback }}"></i>
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                  
+                                    {% if appointment.status == 'pending' %}
+                                        <a href="{% url 'guardian:cancel_appointment' appointment.id %}" class="btn btn-outline-danger" 
+                                           onclick="return confirm('Are you sure you want to cancel this appointment?')">
+                                            Cancel
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-4">
+                <p>You don't have any appointments scheduled.</p>
+                <a href="{% url 'guardian:professional_list' %}" class="btn btn-primary">Find a Professional</a>
+            </div>
+        {% endif %}
+    </div>
+    <!-- Add to guardian/appointment_list.html -->
+{% for appointment in appointments %}
+<tr>
+    <!-- Existing appointment details -->
+    <td>{{ appointment.health_professional.user.get_full_name }}</td>
+    <td>{{ appointment.date }}</td>
+    <td>
+        <span class="badge {% if appointment.status == 'approved' %}bg-success{% elif appointment.status == 'rejected' %}bg-danger{% else %}bg-warning{% endif %}">
+            {{ appointment.get_status_display }}
+        </span>
+    </td>
+    <td>
+        <div class="btn-group btn-group-sm">
+            {% if appointment.status == 'pending' %}
+                <a href="{% url 'guardian:cancel_appointment' appointment.id %}" class="btn btn-outline-danger">Cancel</a>
+            {% endif %}
+            
+            {% if appointment.status == 'approved' %}
+            <a href="{% url 'appointment_messages:conversation' appointment.id %}" class="btn btn-primary">
+                Message
+                {% if appointment.unread_count > 0 %}
+                    <span class="badge bg-danger">{{ appointment.unread_count }}</span>
+                {% endif %}
+            </a>
+            
+                </a>
+            {% endif %}
+        </div>
+    </td>
+</tr>
+{% endfor %}
+</div>
+{% endblock %}

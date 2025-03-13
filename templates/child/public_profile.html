@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ child.user.get_full_name }}'s Profile{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4>{{ child.user.get_full_name }}</h4>
+                </div>
+                <div class="card-body">
+                    <p><strong>Age:</strong> {{ child.age }}</p>
+                    <p><strong>Date of Birth:</strong> {{ child.dob }}</p>
+                    <p><strong>Subjects:</strong></p>
+                    <ul>
+                        {% for subject in subjects_list %}
+                            <li>{{ subject }}</li>
+                        {% endfor %}
+                    </ul>
+                    
+                    {% if is_guardian %}
+                    <p><strong>Medical Conditions:</strong> {{ child.medical_conditions }}</p>
+                    {% endif %}
+                    <p><strong>Guardian:</strong> {{ child.guardian.user.get_full_name }}</p>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header bg-info text-white">
+                    <h5>Skills</h5>
+                </div>
+                <div class="card-body">
+                    {% if skills %}
+                        <ul class="list-group">
+                            {% for skill in skills %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ skill.skill_name }}
+                                <div>
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= skill.rating %}
+                                            <i class="fas fa-star text-warning"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No skills recorded yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <!-- Updated to Bootstrap 5 syntax if you're using Bootstrap 5 -->
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed" 
+                            type="button" role="tab" aria-controls="completed" aria-selected="true">
+                        Completed Tasks
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="submitted-tab" data-bs-toggle="tab" data-bs-target="#submitted" 
+                            type="button" role="tab" aria-controls="submitted" aria-selected="false">
+                        Submitted Tasks
+                    </button>
+                </li>
+                {% if is_guardian or can_view_tasks %}
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="assigned-tab" data-bs-toggle="tab" data-bs-target="#assigned" 
+                            type="button" role="tab" aria-controls="assigned" aria-selected="false">
+                        Assigned Tasks
+                    </button>
+                </li>
+                {% endif %}
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="sessions-tab" data-bs-toggle="tab" data-bs-target="#sessions" 
+                            type="button" role="tab" aria-controls="sessions" aria-selected="false">
+                        Sessions
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content mt-3" id="myTabContent">
+                <!-- Completed Tasks Tab -->
+                <div class="tab-pane fade show active" id="completed" role="tabpanel" aria-labelledby="completed-tab">
+                    <div class="card">
+                        <div class="card-body">
+                            {% if completed_tasks %}
+                                <div class="list-group">
+                                    {% for task in completed_tasks %}
+                                    <div class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h5 class="mb-1">{{ task.title }}</h5>
+                                            <small>{{ task.updated_at|date:"M d, Y" }}</small>
+                                        </div>
+                                        <p class="mb-1">{{ task.description|truncatewords:30 }}</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-success">Completed</small>
+                                            {% if is_guardian or can_view_tasks %}
+                                            <a href="{% url 'trainer:task_detail' task.id %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p>No completed tasks yet.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submitted Tasks Tab -->
+                <div class="tab-pane fade" id="submitted" role="tabpanel" aria-labelledby="submitted-tab">
+                    <div class="card">
+                        <div class="card-body">
+                            {% if submitted_tasks %}
+                                <div class="list-group">
+                                    {% for task in submitted_tasks %}
+                                    <div class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h5 class="mb-1">{{ task.title }}</h5>
+                                            <small>{{ task.updated_at|date:"M d, Y" }}</small>
+                                        </div>
+                                        <p class="mb-1">{{ task.description|truncatewords:30 }}</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-primary">Submitted</small>
+                                            {% if is_guardian or can_view_tasks %}
+                                            <a href="{% url 'trainer:task_detail' task.id %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p>No submitted tasks yet.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assigned Tasks Tab -->
+                {% if is_guardian or can_view_tasks %}
+                <div class="tab-pane fade" id="assigned" role="tabpanel" aria-labelledby="assigned-tab">
+                    <div class="card">
+                        <div class="card-body">
+                            {% if assigned_tasks %}
+                                <div class="list-group">
+                                    {% for task in assigned_tasks %}
+                                    <div class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h5 class="mb-1">{{ task.title }}</h5>
+                                            <small>Due: {{ task.due_date|date:"M d, Y" }}</small>
+                                        </div>
+                                        <p class="mb-1">{{ task.description|truncatewords:30 }}</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-warning">Assigned</small>
+                                            <a href="{% url 'trainer:task_detail' task.id %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p>No assigned tasks currently.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Sessions Tab -->
+                <div class="tab-pane fade" id="sessions" role="tabpanel" aria-labelledby="sessions-tab">
+                    <div class="card mb-3">
+                        <div class="card-header bg-success text-white">
+                            <h5>Upcoming Sessions</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if upcoming_sessions %}
+                                <div class="list-group">
+                                    {% for participant in upcoming_sessions %}
+                                    <div class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h5 class="mb-1">{{ participant.session.title }}</h5>
+                                            <small>{{ participant.session.date|date:"M d, Y" }} at {{ participant.session.time }}</small>
+                                        </div>
+                                        <p class="mb-1">{{ participant.session.description|truncatewords:30 }}</p>
+                                        {% if is_guardian or can_view_tasks %}
+                                        <a href="{% url 'trainer:session_detail' participant.session.id %}" class="btn btn-sm btn-outline-success">View Details</a>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p>No upcoming sessions.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header bg-secondary text-white">
+                            <h5>Past Sessions</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if past_sessions %}
+                                <div class="list-group">
+                                    {% for participant in past_sessions %}
+                                    <div class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h5 class="mb-1">{{ participant.session.title }}</h5>
+                                            <small>{{ participant.session.date|date:"M d, Y" }} at {{ participant.session.time }}</small>
+                                        </div>
+                                        <p class="mb-1">{{ participant.session.description|truncatewords:30 }}</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">Completed</small>
+                                            {% if is_guardian or can_view_tasks %}
+                                            <a href="{% url 'trainer:session_detail' participant.session.id %}" class="btn btn-sm btn-outline-secondary">View Details</a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p>No past sessions.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
